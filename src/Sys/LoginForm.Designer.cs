@@ -1,0 +1,352 @@
+using System.Windows.Forms;
+namespace TPM3.Sys
+{
+    partial class LoginForm
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LoginForm));
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.cbUserName = new System.Windows.Forms.ComboBox();
+            this.btLogin = new System.Windows.Forms.Button();
+            this.btQuit = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
+            this.tbPassword = new System.Windows.Forms.TextBox();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.系统管理ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.miNewProject = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
+            this.miUserManage = new System.Windows.Forms.ToolStripMenuItem();
+            this.miProjectRole = new System.Windows.Forms.ToolStripMenuItem();
+            this.miConvertDatabase = new System.Windows.Forms.ToolStripMenuItem();
+            this.miTool = new System.Windows.Forms.ToolStripMenuItem();
+            this.miAboutDog = new System.Windows.Forms.ToolStripMenuItem();
+            this.miLicenseServer = new System.Windows.Forms.ToolStripMenuItem();
+            this.miAbout = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.miQuit = new System.Windows.Forms.ToolStripMenuItem();
+            this.label4 = new System.Windows.Forms.Label();
+            this.cbProject = new System.Windows.Forms.ComboBox();
+            this.cbDatabase = new System.Windows.Forms.ComboBox();
+            this.btBrowse1 = new System.Windows.Forms.LinkLabel();
+            this.menuStrip1.SuspendLayout();
+            this.SuspendLayout();
+            // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label1.Font = new System.Drawing.Font("宋体", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label1.Location = new System.Drawing.Point(66, 38);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(474, 53);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "欢迎使用软件测试过程管理工具";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(23, 202);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(63, 14);
+            this.label2.TabIndex = 2;
+            this.label2.Text = "用户名：";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(35, 244);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(49, 14);
+            this.label3.TabIndex = 3;
+            this.label3.Text = "密码：";
+            // 
+            // cbUserName
+            // 
+            this.cbUserName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbUserName.DropDownHeight = 206;
+            this.cbUserName.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbUserName.FormattingEnabled = true;
+            this.cbUserName.IntegralHeight = false;
+            this.cbUserName.Location = new System.Drawing.Point(85, 198);
+            this.cbUserName.Name = "cbUserName";
+            this.cbUserName.Size = new System.Drawing.Size(234, 22);
+            this.cbUserName.TabIndex = 6;
+            // 
+            // btLogin
+            // 
+            this.btLogin.Location = new System.Drawing.Point(118, 294);
+            this.btLogin.Name = "btLogin";
+            this.btLogin.Size = new System.Drawing.Size(93, 29);
+            this.btLogin.TabIndex = 8;
+            this.btLogin.Text = "登 录";
+            this.btLogin.UseVisualStyleBackColor = true;
+            this.btLogin.Click += new System.EventHandler(this.btLogin_Click);
+            // 
+            // btQuit
+            // 
+            this.btQuit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btQuit.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.btQuit.Location = new System.Drawing.Point(372, 294);
+            this.btQuit.Name = "btQuit";
+            this.btQuit.Size = new System.Drawing.Size(95, 29);
+            this.btQuit.TabIndex = 9;
+            this.btQuit.Text = "退 出";
+            this.btQuit.UseVisualStyleBackColor = true;
+            this.btQuit.Click += new System.EventHandler(this.btQuit_Click);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(21, 111);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(63, 14);
+            this.label5.TabIndex = 1;
+            this.label5.Text = "数据库：";
+            // 
+            // tbPassword
+            // 
+            this.tbPassword.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbPassword.Location = new System.Drawing.Point(85, 239);
+            this.tbPassword.Name = "tbPassword";
+            this.tbPassword.PasswordChar = '*';
+            this.tbPassword.Size = new System.Drawing.Size(234, 23);
+            this.tbPassword.TabIndex = 7;
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.系统管理ToolStripMenuItem,
+            this.miTool});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(604, 25);
+            this.menuStrip1.TabIndex = 5;
+            // 
+            // 系统管理ToolStripMenuItem
+            // 
+            this.系统管理ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.miNewProject,
+            this.toolStripMenuItem2,
+            this.miUserManage,
+            this.miProjectRole,
+            this.miConvertDatabase});
+            this.系统管理ToolStripMenuItem.Name = "系统管理ToolStripMenuItem";
+            this.系统管理ToolStripMenuItem.Size = new System.Drawing.Size(68, 21);
+            this.系统管理ToolStripMenuItem.Text = "系统管理";
+            // 
+            // miNewProject
+            // 
+            this.miNewProject.Name = "miNewProject";
+            this.miNewProject.Size = new System.Drawing.Size(161, 22);
+            this.miNewProject.Text = "创建新项目";
+            this.miNewProject.Click += new System.EventHandler(this.miNewProject_Click);
+            // 
+            // toolStripMenuItem2
+            // 
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(158, 6);
+            // 
+            // miUserManage
+            // 
+            this.miUserManage.Name = "miUserManage";
+            this.miUserManage.Size = new System.Drawing.Size(161, 22);
+            this.miUserManage.Text = "人员管理";
+            this.miUserManage.Click += new System.EventHandler(this.miUserManage_Click);
+            // 
+            // miProjectRole
+            // 
+            this.miProjectRole.Name = "miProjectRole";
+            this.miProjectRole.Size = new System.Drawing.Size(161, 22);
+            this.miProjectRole.Text = "项目角色分配";
+            this.miProjectRole.Click += new System.EventHandler(this.miProjectRole_Click);
+            // 
+            // miConvertDatabase
+            // 
+            this.miConvertDatabase.Name = "miConvertDatabase";
+            this.miConvertDatabase.Size = new System.Drawing.Size(161, 22);
+            this.miConvertDatabase.Text = "升级数据库(&C)...";
+            this.miConvertDatabase.Click += new System.EventHandler(this.miConvertDatabase_Click);
+            // 
+            // miTool
+            // 
+            this.miTool.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.miAboutDog,
+            this.miLicenseServer,
+            this.miAbout,
+            this.toolStripMenuItem1,
+            this.miQuit});
+            this.miTool.Name = "miTool";
+            this.miTool.Size = new System.Drawing.Size(44, 21);
+            this.miTool.Text = "关于";
+            // 
+            // miAboutDog
+            // 
+            this.miAboutDog.Name = "miAboutDog";
+            this.miAboutDog.Size = new System.Drawing.Size(220, 22);
+            this.miAboutDog.Text = "关于加密狗";
+            // 
+            // miLicenseServer
+            // 
+            this.miLicenseServer.Name = "miLicenseServer";
+            this.miLicenseServer.Size = new System.Drawing.Size(220, 22);
+            this.miLicenseServer.Text = "显示使用许可证服务器状态";
+            // 
+            // miAbout
+            // 
+            this.miAbout.Name = "miAbout";
+            this.miAbout.Size = new System.Drawing.Size(220, 22);
+            this.miAbout.Text = "关于";
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(217, 6);
+            // 
+            // miQuit
+            // 
+            this.miQuit.Name = "miQuit";
+            this.miQuit.Size = new System.Drawing.Size(220, 22);
+            this.miQuit.Text = "退出";
+            this.miQuit.Click += new System.EventHandler(this.btQuit_Click);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(23, 160);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(63, 14);
+            this.label4.TabIndex = 2;
+            this.label4.Text = "项目名：";
+            // 
+            // cbProject
+            // 
+            this.cbProject.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbProject.DropDownHeight = 206;
+            this.cbProject.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbProject.FormattingEnabled = true;
+            this.cbProject.IntegralHeight = false;
+            this.cbProject.Location = new System.Drawing.Point(85, 157);
+            this.cbProject.Name = "cbProject";
+            this.cbProject.Size = new System.Drawing.Size(473, 22);
+            this.cbProject.TabIndex = 6;
+            this.cbProject.SelectedIndexChanged += new System.EventHandler(this.cbProject_SelectedIndexChanged);
+            // 
+            // cbDatabase
+            // 
+            this.cbDatabase.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbDatabase.FormattingEnabled = true;
+            this.cbDatabase.Location = new System.Drawing.Point(85, 108);
+            this.cbDatabase.MaxDropDownItems = 12;
+            this.cbDatabase.Name = "cbDatabase";
+            this.cbDatabase.Size = new System.Drawing.Size(473, 22);
+            this.cbDatabase.TabIndex = 10;
+            this.cbDatabase.SelectedIndexChanged += new System.EventHandler(this.cbDatabase_SelectedIndexChanged);
+            // 
+            // btBrowse1
+            // 
+            this.btBrowse1.AutoSize = true;
+            this.btBrowse1.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.btBrowse1.Location = new System.Drawing.Point(460, 133);
+            this.btBrowse1.Name = "btBrowse1";
+            this.btBrowse1.Size = new System.Drawing.Size(98, 14);
+            this.btBrowse1.TabIndex = 11;
+            this.btBrowse1.TabStop = true;
+            this.btBrowse1.Text = "选择数据库...";
+            this.btBrowse1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.btBrowse1_LinkClicked);
+            // 
+            // LoginForm
+            // 
+            this.AcceptButton = this.btLogin;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
+            this.ClientSize = new System.Drawing.Size(604, 352);
+            this.Controls.Add(this.btBrowse1);
+            this.Controls.Add(this.cbDatabase);
+            this.Controls.Add(this.btQuit);
+            this.Controls.Add(this.btLogin);
+            this.Controls.Add(this.cbProject);
+            this.Controls.Add(this.cbUserName);
+            this.Controls.Add(this.tbPassword);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.menuStrip1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MainMenuStrip = this.menuStrip1;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(500, 380);
+            this.Name = "LoginForm";
+            this.ShowInTaskbar = true;
+            this.Text = "用户登录";
+            this.Load += new System.EventHandler(this.LoginForm_Load);
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
+        }
+
+        #endregion
+
+        private Label label1;
+        private Label label2;
+        private Label label3;
+        private ComboBox cbUserName;
+        private Button btLogin;
+        private Button btQuit;
+        private Label label5;
+        private TextBox tbPassword;
+        private MenuStrip menuStrip1;
+        private ToolStripMenuItem miTool;
+        private ToolStripMenuItem miAbout;
+        private ToolStripSeparator toolStripMenuItem1;
+        private ToolStripMenuItem miQuit;
+        private ToolStripMenuItem miAboutDog;
+        private Label label4;
+        private ComboBox cbProject;
+        private ToolStripMenuItem miLicenseServer;
+        private ToolStripMenuItem 系统管理ToolStripMenuItem;
+        private ToolStripMenuItem miNewProject;
+        private ToolStripMenuItem miProjectRole;
+        private ToolStripSeparator toolStripMenuItem2;
+        private ToolStripMenuItem miUserManage;
+        private ToolStripMenuItem miConvertDatabase;
+        private ComboBox cbDatabase;
+        private LinkLabel btBrowse1;
+    }
+}

@@ -1,0 +1,1293 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6BC0C630-FBC6-4530-80B0-DE7A58B866D1}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TPM3</RootNamespace>
+    <AssemblyName>TPM3</AssemblyName>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <ApplicationIcon>TPM.ico</ApplicationIcon>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugPackage|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\DebugPackage\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;Package,Dog</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Aspose.Words, Version=6.0.1.0, Culture=neutral, PublicKeyToken=716fcc553a201e56, processorArchitecture=MSIL" />
+    <Reference Include="C1.Win.C1FlexGrid.2, Version=2.6.20091.401, Culture=neutral, PublicKeyToken=79882d576c6336da, processorArchitecture=MSIL" />
+    <Reference Include="C1.Win.C1Input.2, Version=2.0.20071.32002, Culture=neutral, PublicKeyToken=7e7ff60f0c214f9a, processorArchitecture=MSIL" />
+    <Reference Include="C1.Win.C1SuperTooltip.2, Version=2.0.20091.57, Culture=neutral, PublicKeyToken=79882d576c6336da, processorArchitecture=MSIL" />
+    <Reference Include="C1.Win.C1TrueDBGrid.2, Version=2.0.20071.61115, Culture=neutral, PublicKeyToken=75ae3fb0e2b1e0da, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Config\C1.Win.C1TrueDBGrid.2.dll</HintPath>
+    </Reference>
+    <Reference Include="Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="ComponentFactory.Krypton.Toolkit, Version=4.3.2.0, Culture=neutral, PublicKeyToken=a87e673e9ecb6e8e, processorArchitecture=MSIL" />
+    <Reference Include="DevComponents.DotNetBar2, Version=6.7.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Config\DevComponents.DotNetBar2.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.Office, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Config\Interop.Office.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.VBIDE, Version=5.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Config\Interop.VBIDE.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.Word, Version=8.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Config\Interop.Word.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Config\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="MagicLibrary, Version=1.7.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Config\MagicLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="OutputComm, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="TestLibrary">
+      <HintPath>..\..\StpMs\TestLibrary\bin\Debug\TestLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="TpmCoreData, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Config\TpmCoreData.dll</HintPath>
+    </Reference>
+    <Reference Include="tpmUtils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="WordLastProcess, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="app_code\DBAccessLog.cs" />
+    <Compile Include="app_code\DBLayer1.cs" />
+    <Compile Include="app_code\DBLayer2.cs" />
+    <Compile Include="app_code\FormClass.cs" />
+    <Compile Include="app_code\ItemNodeClass.cs" />
+    <Compile Include="app_code\MyProjectInfo.cs" />
+    <Compile Include="chq\All.cs" />
+    <Compile Include="chq\Annexs.cs" />
+    <Compile Include="chq\BatchOutput.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="chq\BatchOutput.Designer.cs">
+      <DependentUpon>BatchOutput.cs</DependentUpon>
+    </Compile>
+    <Compile Include="chq\Cover.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="chq\Cover.Designer.cs">
+      <DependentUpon>Cover.cs</DependentUpon>
+    </Compile>
+    <Compile Include="chq\DXBG.cs" />
+    <Compile Include="chq\DXDG.cs" />
+    <Compile Include="chq\Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="chq\Form1.Designer.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="chq\HG.cs" />
+    <Compile Include="chq\HGFA.cs" />
+    <Compile Include="chq\HGFL_Question.cs" />
+    <Compile Include="chq\HGFL_Record.cs" />
+    <Compile Include="chq\HGFL_TestCase.cs" />
+    <Compile Include="chq\HGWD.cs" />
+    <Compile Include="chq\IfCloseWord.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="chq\IfCloseWord.Designer.cs">
+      <DependentUpon>IfCloseWord.cs</DependentUpon>
+    </Compile>
+    <Compile Include="chq\JHTP.cs" />
+    <Compile Include="chq\NodeTree.cs" />
+    <Compile Include="chq\OutputDoc.cs" />
+    <Compile Include="chq\OutputForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="chq\OutputForm.Designer.cs">
+      <DependentUpon>OutputForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="chq\PR.cs" />
+    <Compile Include="chq\QuestionInfo.cs" />
+    <Compile Include="chq\Scattered.cs" />
+    <Compile Include="chq\TA.cs" />
+    <Compile Include="chq\TL.cs" />
+    <Compile Include="chq\TP.cs" />
+    <Compile Include="chq\TR.cs" />
+    <Compile Include="chq\TS.cs" />
+    <Compile Include="chq\Wait.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="chq\Wait.Designer.cs">
+      <DependentUpon>Wait.cs</DependentUpon>
+    </Compile>
+    <Compile Include="chq\wait_output.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="chq\wait_output.Designer.cs">
+      <DependentUpon>wait_output.cs</DependentUpon>
+    </Compile>
+    <Compile Include="chq\WordProcess.cs" />
+    <Compile Include="chq\ZXTF.cs" />
+    <Compile Include="chq\文档修改页.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="chq\文档修改页.Designer.cs">
+      <DependentUpon>文档修改页.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Common\GridClipboard.cs" />
+    <Compile Include="Common\IValidator.cs" />
+    <Compile Include="Common\NotNullValidator.cs" />
+    <Compile Include="Common\RefrenceColumnMapList.cs" />
+    <Compile Include="Common\RowPosition.cs" />
+    <Compile Include="Common\TreeNodeRelation.cs" />
+    <Compile Include="Common\TrueDBGridAssist.cs" />
+    <Compile Include="lt\NoneTestPlbName.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="lt\NoneTestPlbName.Designer.cs">
+      <DependentUpon>NoneTestPlbName.cs</DependentUpon>
+    </Compile>
+    <Compile Include="lt\ProblemResultDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="lt\ProblemResultDlg.Designer.cs">
+      <DependentUpon>ProblemResultDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="lt\ProjectManageForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="lt\ProjectManageForm.Designer.cs">
+      <DependentUpon>ProjectManageForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="lt\RegressionProblemMenu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="lt\RegressionProblemMenu.Designer.cs">
+      <DependentUpon>RegressionProblemMenu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="lt\RegressionTestDesignForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="lt\RegressionTestDesignForm.Designer.cs">
+      <DependentUpon>RegressionTestDesignForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="lt\RegressionTestInfluenceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="lt\RegressionTestInfluenceForm.designer.cs">
+      <DependentUpon>RegressionTestInfluenceForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectManager\SelectProjectDB.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ProjectManager\SelectProjectDB.Designer.cs">
+      <DependentUpon>SelectProjectDB.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="chq\BatchOutput.resx">
+      <DependentUpon>BatchOutput.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="chq\Form1.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="chq\IfCloseWord.resx">
+      <DependentUpon>IfCloseWord.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sys\AboutBox1.resx">
+      <DependentUpon>AboutBox1.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sys\ImageForm.resx">
+      <DependentUpon>ImageForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sys\LoginForm.resx">
+      <DependentUpon>LoginForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sys\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sys\MyBaseForm.resx">
+      <DependentUpon>MyBaseForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="dot\demo\文档附件模板-DEMO.doc" />
+    <None Include="dot\demo\测试报告模板-DEMO.doc" />
+    <None Include="dot\demo\测试计划模板-DEMO.doc" />
+    <None Include="dot\demo\测试记录结果模板-DEMO.doc" />
+    <None Include="dot\demo\测试记录表单模板-DEMO.doc" />
+    <None Include="dot\demo\测试说明模板-DEMO.doc" />
+    <None Include="dot\demo\测试需求规格说明模板-DEMO.doc" />
+    <None Include="dot\demo\问题报告模板-DEMO.doc" />
+    <None Include="dot\回归测试报告模板-pczx.doc" />
+    <None Include="dot\回归测试文档模板-pczx.doc" />
+    <None Include="dot\回归测试方案模板-pczx.doc" />
+    <None Include="dot\回归测试记录结果模板-pczx.doc" />
+    <None Include="dot\回归测试记录表单模板-pczx.doc" />
+    <None Include="dot\回归测试说明模板-pczx.doc" />
+    <None Include="dot\回归问题报告模板-pczx.doc" />
+    <None Include="dot\文档附件模板-pczx.doc" />
+    <None Include="dot\测试报告模板-pczx.doc" />
+    <None Include="dot\测试计划模板-pczx.doc" />
+    <None Include="dot\测试记录结果模板-pczx.doc" />
+    <None Include="dot\测试记录表单模板-pczx.doc" />
+    <None Include="dot\测试说明模板-pczx.doc" />
+    <None Include="dot\测试需求规格说明模板-pczx.doc" />
+    <None Include="dot\问题报告模板-pczx.doc" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="Sys\AboutBox1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Sys\AboutBox1.designer.cs">
+      <DependentUpon>AboutBox1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Sys\PasswordForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Sys\PasswordForm.Designer.cs">
+      <DependentUpon>PasswordForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Sys\ProjectRoleForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Sys\ProjectRoleForm.Designer.cs">
+      <DependentUpon>ProjectRoleForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Sys\GlobalData.cs" />
+    <Compile Include="Sys\ImageForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Sys\ImageForm.designer.cs">
+      <DependentUpon>ImageForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Sys\LeftTreeUserControl.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Sys\LeftTreeUserControl.designer.cs">
+      <DependentUpon>LeftTreeUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Sys\LoginForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Sys\LoginForm.Designer.cs">
+      <DependentUpon>LoginForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Sys\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Sys\MainForm.designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Sys\MyBaseForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Sys\MyBaseForm.designer.cs">
+      <DependentUpon>MyBaseForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Sys\MySplitter.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Sys\UserManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Sys\UserManager.Designer.cs">
+      <DependentUpon>UserManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Sys\UserSetting.cs" />
+    <Compile Include="wx\DBAccessLogForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\DBAccessLogForm.Designer.cs">
+      <DependentUpon>DBAccessLogForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\AutoAddAbbrvListForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\AutoAddAbbrvListForm.Designer.cs">
+      <DependentUpon>AutoAddAbbrvListForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\AutoAddReffileForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\AutoAddReffileForm.Designer.cs">
+      <DependentUpon>AutoAddReffileForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\DX_QAActiveForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\DX_QAActiveForm.Designer.cs">
+      <DependentUpon>DX_QAActiveForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\DX_TestSummaryForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\DX_TestSummaryForm.Designer.cs">
+      <DependentUpon>DX_TestSummaryForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\FallTypeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\FallTypeForm.Designer.cs">
+      <DependentUpon>FallTypeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\ProjectBaseInfoForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\ProjectBaseInfoForm.designer.cs">
+      <DependentUpon>ProjectBaseInfoForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\RequireItemInfoForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\RequireItemInfoForm.Designer.cs">
+      <DependentUpon>RequireItemInfoForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\RequireTreeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\RequireTreeForm.Designer.cs">
+      <DependentUpon>RequireTreeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\TestEnviForm2.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\TestEnviForm2.Designer.cs">
+      <DependentUpon>TestEnviForm2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\TestPlanForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\TestPlanForm.Designer.cs">
+      <DependentUpon>TestPlanForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\TestPrepareForm.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="wx\doc\TestPrepareForm.Designer.cs">
+      <DependentUpon>TestPrepareForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\TestClassTemplateTree.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\TestClassTemplateTree.designer.cs">
+      <DependentUpon>TestClassTemplateTree.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\TestClassTemplateList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\TestClassTemplateList.Designer.cs">
+      <DependentUpon>TestClassTemplateList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\TestStrategyForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\TestStrategyForm.Designer.cs">
+      <DependentUpon>TestStrategyForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\HG\InfluenceAnalysis.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\HG\InfluenceAnalysis.Designer.cs">
+      <DependentUpon>InfluenceAnalysis.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\HG\RegressFallRequireTraceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\HG\RegressFallRequireTraceForm.Designer.cs">
+      <DependentUpon>RegressFallRequireTraceForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\HG\RegressModifyControl1.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="wx\HG\RegressModifyControl1.Designer.cs">
+      <DependentUpon>RegressModifyControl1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\HG\RegressModifyControl2.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="wx\HG\RegressModifyControl2.Designer.cs">
+      <DependentUpon>RegressModifyControl2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\HG\RegressModifyInfo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\HG\RegressModifyInfo.Designer.cs">
+      <DependentUpon>RegressModifyInfo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\HG\SoftwareModifyForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\HG\SoftwareModifyForm.Designer.cs">
+      <DependentUpon>SoftwareModifyForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\MyUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="wx\NewProjectForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\NewProjectForm.Designer.cs">
+      <DependentUpon>NewProjectForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\NewVersionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\NewVersionForm.Designer.cs">
+      <DependentUpon>NewVersionForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\Ole1Form.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\Ole1Form.Designer.cs">
+      <DependentUpon>Ole1Form.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\PersonForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\PersonForm.Designer.cs">
+      <DependentUpon>PersonForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\OptionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\OptionForm.Designer.cs">
+      <DependentUpon>OptionForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\ProjectVersionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\ProjectVersionForm.Designer.cs">
+      <DependentUpon>ProjectVersionForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\SummaryForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\SummaryForm.Designer.cs">
+      <DependentUpon>SummaryForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\TestEnviForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\TestEnviForm.Designer.cs">
+      <DependentUpon>TestEnviForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\TestMethodForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\TestMethodForm.Designer.cs">
+      <DependentUpon>TestMethodForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\TestPriorityForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\TestPriorityForm.Designer.cs">
+      <DependentUpon>TestPriorityForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\doc\WmfImageForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\doc\WmfImageForm.Designer.cs">
+      <DependentUpon>WmfImageForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\Trace\CaseTraceTree.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="wx\Trace\CaseTraceTree.Designer.cs">
+      <DependentUpon>CaseTraceTree.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\Trace\FallTraceTree.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="wx\Trace\FallTraceTree.Designer.cs">
+      <DependentUpon>FallTraceTree.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\Trace\TestObjectInfoControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="wx\Trace\TestObjectInfoControl.Designer.cs">
+      <DependentUpon>TestObjectInfoControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\Trace\TestObjectSummary.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="wx\Trace\TestObjectSummary.Designer.cs">
+      <DependentUpon>TestObjectSummary.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\TestDoc.cs" />
+    <Compile Include="wx\TraceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\TraceForm.Designer.cs">
+      <DependentUpon>TraceForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\Trace\AttachCaseTrace.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="wx\Trace\AttachCaseTrace.Designer.cs">
+      <DependentUpon>AttachCaseTrace.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\Trace\ItemCaseTrace.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="wx\Trace\ItemCaseTrace.Designer.cs">
+      <DependentUpon>ItemCaseTrace.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\Trace\RequireItemTrace.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="wx\Trace\RequireItemTrace.Designer.cs">
+      <DependentUpon>RequireItemTrace.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\Trace\ResultSummaryVisitClass.cs" />
+    <Compile Include="wx\Trace\TestCaseResultSummary.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="wx\Trace\TestCaseResultSummary.Designer.cs">
+      <DependentUpon>TestCaseResultSummary.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\Trace\TestCaseSummary.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="wx\Trace\TestCaseSummary.Designer.cs">
+      <DependentUpon>TestCaseSummary.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\ObjectSubForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\ObjectSubForm.Designer.cs">
+      <DependentUpon>ObjectSubForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\Trace\TestcaseSummeryInfoControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="wx\Trace\TestcaseSummeryInfoControl.Designer.cs">
+      <DependentUpon>TestcaseSummeryInfoControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\Trace\FallMatrixTable.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="wx\Trace\FallMatrixTable.Designer.cs">
+      <DependentUpon>FallMatrixTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\Trace\TestProjectSummary.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="wx\Trace\TestProjectSummary.Designer.cs">
+      <DependentUpon>TestProjectSummary.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\Trace\TestResultForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\Trace\TestResultForm.Designer.cs">
+      <DependentUpon>TestResultForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\Trace\UnExecCase.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="wx\Trace\UnExecCase.Designer.cs">
+      <DependentUpon>UnExecCase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\Upgrade\UpgradeDatabase.cs" />
+    <Compile Include="wx\Upgrade\ConvertProcessForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="wx\Upgrade\ConvertProcessForm.Designer.cs">
+      <DependentUpon>ConvertProcessForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="wx\Upgrade\DatabaseConvert254.cs" />
+    <Compile Include="zxd\BusiLogic.cs" />
+    <Compile Include="zxd\clu\AddAccessoryForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\clu\AddAccessoryForm.Designer.cs">
+      <DependentUpon>AddAccessoryForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\clu\AlertCustom.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\clu\AccEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\clu\AccEditor.designer.cs">
+      <DependentUpon>AccEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\clu\AccEditorDDControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="zxd\clu\FindUsecaseForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\clu\FindUsecaseForm.designer.cs">
+      <DependentUpon>FindUsecaseForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\clu\FindUsecaseResultForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\clu\FindUsecaseResultForm.designer.cs">
+      <DependentUpon>FindUsecaseResultForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\clu\InputText.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\clu\InputText.Designer.cs">
+      <DependentUpon>InputText.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\clu\PasteItemSelForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\clu\PasteItemSelForm.Designer.cs">
+      <DependentUpon>PasteItemSelForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\clu\PasteUsecaseSelForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\clu\PasteUsecaseSelForm.designer.cs">
+      <DependentUpon>PasteUsecaseSelForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\clu\SelVersion.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\clu\SelVersion.Designer.cs">
+      <DependentUpon>SelVersion.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\FrmCommonFunc.cs" />
+    <Compile Include="zxd\pbl\CustomPblSignForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\pbl\CustomPblSignForm.Designer.cs">
+      <DependentUpon>CustomPblSignForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\pbl\DlgSubmitProblem.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\pbl\DlgSubmitProblem.designer.cs">
+      <DependentUpon>DlgSubmitProblem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\pbl\ExistPblRepForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\pbl\ExistPblRepForm.designer.cs">
+      <DependentUpon>ExistPblRepForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\pbl\PblRepsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\pbl\PblRepsForm.Designer.cs">
+      <DependentUpon>PblRepsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\pbl\PblRepsRightForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\pbl\PblRepsRightForm.designer.cs">
+      <DependentUpon>PblRepsRightForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\pbl\ProblemRepForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\pbl\ProblemRepForm.designer.cs">
+      <DependentUpon>ProblemRepForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\TestUsecaseForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\TestUsecaseForm.Designer.cs">
+      <DependentUpon>TestUsecaseForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\TestItemForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\TestItemForm.Designer.cs">
+      <DependentUpon>TestItemForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\TestObjForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\TestObjForm.Designer.cs">
+      <DependentUpon>TestObjForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\ExecStatus.cs" />
+    <Compile Include="zxd\TestProjectForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\TestProjectForm.Designer.cs">
+      <DependentUpon>TestProjectForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\TestTreeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\TestTreeForm.Designer.cs">
+      <DependentUpon>TestTreeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\TestTypeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\TestTypeForm.Designer.cs">
+      <DependentUpon>TestTypeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\util\ImportUC1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\util\ImportUC1.Designer.cs">
+      <DependentUpon>ImportUC1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\util\ImportUC.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\util\ImportUC.Designer.cs">
+      <DependentUpon>ImportUC.cs</DependentUpon>
+    </Compile>
+    <Compile Include="zxd\util\UsecaseSelView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="zxd\util\UsecaseSelView.Designer.cs">
+      <DependentUpon>UsecaseSelView.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="cdll5_b.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cdll5_u.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cdllt.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Config\Aspose.Words.dll" />
+    <Content Include="Config\C1.Win.C1FlexGrid.2.dll" />
+    <Content Include="Config\C1.Win.C1Input.2.dll" />
+    <Content Include="Config\C1.Win.C1SuperTooltip.2.dll" />
+    <Content Include="Config\C1.Win.C1TrueDBGrid.2.dll" />
+    <Content Include="Config\Common.dll" />
+    <Content Include="Config\DevComponents.DotNetBar2.dll" />
+    <Content Include="Config\Interop.Office.dll" />
+    <Content Include="Config\Interop.VBIDE.dll" />
+    <Content Include="Config\Interop.Word.dll" />
+    <Content Include="Config\log4net.dll" />
+    <Content Include="Config\MagicLibrary.dll" />
+    <EmbeddedResource Include="chq\Cover.resx">
+      <DependentUpon>Cover.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="chq\OutputForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>OutputForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="chq\Wait.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>Wait.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="chq\wait_output.resx">
+      <DependentUpon>wait_output.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="chq\文档修改页.resx">
+      <DependentUpon>文档修改页.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Config\项目树\tree.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="lt\NoneTestPlbName.resx">
+      <DependentUpon>NoneTestPlbName.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="lt\ProblemResultDlg.resx">
+      <DependentUpon>ProblemResultDlg.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="lt\ProjectManageForm.resx">
+      <DependentUpon>ProjectManageForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="lt\RegressionProblemMenu.resx">
+      <DependentUpon>RegressionProblemMenu.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="lt\RegressionTestDesignForm.resx">
+      <DependentUpon>RegressionTestDesignForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="lt\RegressionTestInfluenceForm.resx">
+      <DependentUpon>RegressionTestInfluenceForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ProjectManager\SelectProjectDB.resx">
+      <DependentUpon>SelectProjectDB.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\licenses.licx" />
+    <EmbeddedResource Include="Sys\PasswordForm.resx">
+      <DependentUpon>PasswordForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sys\ProjectRoleForm.resx">
+      <DependentUpon>ProjectRoleForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sys\UserManager.resx">
+      <DependentUpon>UserManager.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\DBAccessLogForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>DBAccessLogForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\AutoAddAbbrvListForm.resx">
+      <DependentUpon>AutoAddAbbrvListForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\AutoAddReffileForm.resx">
+      <DependentUpon>AutoAddReffileForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\DX_QAActiveForm.resx">
+      <DependentUpon>DX_QAActiveForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\DX_TestSummaryForm.resx">
+      <DependentUpon>DX_TestSummaryForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\FallTypeForm.resx">
+      <DependentUpon>FallTypeForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\ProjectBaseInfoForm.resx">
+      <DependentUpon>ProjectBaseInfoForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\RequireItemInfoForm.resx">
+      <DependentUpon>RequireItemInfoForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\RequireTreeForm.resx">
+      <DependentUpon>RequireTreeForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\TestEnviForm2.resx">
+      <DependentUpon>TestEnviForm2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\TestPlanForm.resx">
+      <DependentUpon>TestPlanForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\TestPrepareForm.resx">
+      <DependentUpon>TestPrepareForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\TestClassTemplateTree.resx">
+      <DependentUpon>TestClassTemplateTree.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\TestClassTemplateList.resx">
+      <DependentUpon>TestClassTemplateList.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\TestStrategyForm.resx">
+      <DependentUpon>TestStrategyForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\HG\InfluenceAnalysis.resx">
+      <DependentUpon>InfluenceAnalysis.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\HG\RegressFallRequireTraceForm.resx">
+      <DependentUpon>RegressFallRequireTraceForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\HG\RegressModifyControl1.resx">
+      <DependentUpon>RegressModifyControl1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\HG\RegressModifyControl2.resx">
+      <DependentUpon>RegressModifyControl2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\HG\RegressModifyInfo.resx">
+      <DependentUpon>RegressModifyInfo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\HG\SoftwareModifyForm.resx">
+      <DependentUpon>SoftwareModifyForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\NewProjectForm.resx">
+      <DependentUpon>NewProjectForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\NewVersionForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>NewVersionForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\Ole1Form.resx">
+      <DependentUpon>Ole1Form.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\PersonForm.resx">
+      <DependentUpon>PersonForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\OptionForm.resx">
+      <DependentUpon>OptionForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\ProjectVersionForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ProjectVersionForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\SummaryForm.resx">
+      <DependentUpon>SummaryForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\TestEnviForm.resx">
+      <DependentUpon>TestEnviForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\TestMethodForm.resx">
+      <DependentUpon>TestMethodForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\TestPriorityForm.resx">
+      <DependentUpon>TestPriorityForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\doc\WmfImageForm.resx">
+      <DependentUpon>WmfImageForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\Trace\CaseTraceTree.resx">
+      <DependentUpon>CaseTraceTree.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\Trace\FallTraceTree.resx">
+      <DependentUpon>FallTraceTree.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\Trace\TestObjectInfoControl.resx">
+      <DependentUpon>TestObjectInfoControl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\Trace\TestObjectSummary.resx">
+      <DependentUpon>TestObjectSummary.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\TraceForm.resx">
+      <DependentUpon>TraceForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\Trace\AttachCaseTrace.resx">
+      <DependentUpon>AttachCaseTrace.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\Trace\ItemCaseTrace.resx">
+      <DependentUpon>ItemCaseTrace.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\Trace\RequireItemTrace.resx">
+      <DependentUpon>RequireItemTrace.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\Trace\TestCaseResultSummary.resx">
+      <DependentUpon>TestCaseResultSummary.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\Trace\TestCaseSummary.resx">
+      <DependentUpon>TestCaseSummary.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\ObjectSubForm.resx">
+      <DependentUpon>ObjectSubForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\Trace\TestcaseSummeryInfoControl.resx">
+      <DependentUpon>TestcaseSummeryInfoControl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\Trace\FallMatrixTable.resx">
+      <DependentUpon>FallMatrixTable.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\Trace\TestProjectSummary.resx">
+      <DependentUpon>TestProjectSummary.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\Trace\TestResultForm.resx">
+      <DependentUpon>TestResultForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\Trace\UnExecCase.resx">
+      <DependentUpon>UnExecCase.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wx\Upgrade\ConvertProcessForm.resx">
+      <DependentUpon>ConvertProcessForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\clu\AddAccessoryForm.resx">
+      <DependentUpon>AddAccessoryForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\clu\AlertCustom.resx">
+      <DependentUpon>AlertCustom.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\clu\AccEditor.resx">
+      <DependentUpon>AccEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\clu\AccEditorDDControl.resx">
+      <DependentUpon>AccEditorDDControl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\clu\FindUsecaseForm.resx">
+      <DependentUpon>FindUsecaseForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\clu\FindUsecaseResultForm.resx">
+      <DependentUpon>FindUsecaseResultForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\clu\InputText.resx">
+      <DependentUpon>InputText.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\clu\PasteItemSelForm.resx">
+      <DependentUpon>PasteItemSelForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\clu\PasteUsecaseSelForm.resx">
+      <DependentUpon>PasteUsecaseSelForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\clu\SelVersion.resx">
+      <DependentUpon>SelVersion.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\clu\tpm3zxd.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\pbl\CustomPblSignForm.resx">
+      <DependentUpon>CustomPblSignForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\pbl\DlgSubmitProblem.resx">
+      <DependentUpon>DlgSubmitProblem.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\pbl\ExistPblRepForm.resx">
+      <DependentUpon>ExistPblRepForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\pbl\PblRepsForm.resx">
+      <DependentUpon>PblRepsForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\pbl\PblRepsRightForm.resx">
+      <DependentUpon>PblRepsRightForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\pbl\ProblemRepForm.resx">
+      <DependentUpon>ProblemRepForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\TestUsecaseForm.resx">
+      <DependentUpon>TestUsecaseForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\TestItemForm.resx">
+      <DependentUpon>TestItemForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\TestObjForm.resx">
+      <DependentUpon>TestObjForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\TestProjectForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>TestProjectForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\TestTreeForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>TestTreeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Config\res\测试实施.gif" />
+    <EmbeddedResource Include="Config\res\测试总结.gif" />
+    <EmbeddedResource Include="Config\res\测试策划.gif" />
+    <EmbeddedResource Include="Config\res\测试设计.gif" />
+    <EmbeddedResource Include="Config\res\测试过程1.gif" />
+    <EmbeddedResource Include="Config\res\测试过程2.gif" />
+    <EmbeddedResource Include="Config\res\测试需求分析.gif" />
+    <EmbeddedResource Include="Config\res\项目基本信息.gif" />
+    <EmbeddedResource Include="zxd\TestTypeForm.resx">
+      <DependentUpon>TestTypeForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\util\ImportUC1.resx">
+      <DependentUpon>ImportUC1.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\util\ImportUC.resx">
+      <DependentUpon>ImportUC.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="zxd\util\UsecaseSelView.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>UsecaseSelView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Config\项目树\tree_r.xml" />
+    <EmbeddedResource Include="Config\项目树\tree_p.xml" />
+    <EmbeddedResource Include="Config\项目树\tree_m.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Content Include="Config\OutputComm.dll" />
+    <Content Include="Config\TestLibrary.dll" />
+    <Content Include="Config\TpmCoreData.dll" />
+    <Content Include="Config\tpmUtils.dll" />
+    <EmbeddedResource Include="Config\项目树\tree-完全.xml" />
+    <EmbeddedResource Include="Config\项目树\tree-最小.xml" />
+    <EmbeddedResource Include="Config\项目树\tree-简化.xml" />
+    <Content Include="Config\WordLastProcess.dll" />
+    <Content Include="Config\例子.mdb">
+    </Content>
+    <Content Include="Config\空库.mdb">
+    </Content>
+    <Content Include="Config\说明.txt" />
+    <EmbeddedResource Include="Config\项目树\tree-定型.xml" />
+    <EmbeddedResource Include="Config\项目树\tree-定型-回归.xml" />
+    <Content Include="dot\Picture\Question.bmp" />
+    <Content Include="dot\Picture\TestClass.bmp" />
+    <Content Include="dot\Picture\TestItem1.bmp" />
+    <Content Include="dot\Picture\TestObject.bmp" />
+    <Content Include="inpout32.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TPM.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="dot\pczx\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,411 @@
+using System;
+using System.Data;
+using System.Collections.Generic;
+using System.Drawing;
+using Common;
+using C1.Win.C1FlexGrid;
+using TPM3.Sys;
+using NodeType = Z1.tpm.NodeType;
+
+namespace TPM3.wx
+{
+    /// <summary>
+    /// 测试用例分级统计表
+    /// </summary>
+    [TypeNameMap("wx.TestCaseSummary")]
+    public partial class TestCaseSummary : MyUserControl
+    {
+        static ColumnPropList columnList1 = GridAssist.GetColumnPropList<TestCaseSummary>();
+        FlexGridAssist flexAssist1;
+
+        public TestCaseSummary()
+        {
+            InitializeComponent();
+            FlexGridAssist.SetFlexGridWithoutFocus(flex1);
+            flexAssist1 = new FlexGridAssist(flex1, null, null);
+            flexAssist1.columnList = columnList1;
+            flex1.AllowDragging = AllowDraggingEnum.Columns;
+        }
+
+        static TestCaseSummary()
+        {
+            columnList1.Add("名称", 220);
+            columnList1.Add("条目数", 40, "测试项");
+            columnList1.Add("测试结果", 70, "测试项合格与否");
+            columnList1.Add("总用例数", 55, "总用例");
+            columnList1.Add("独立的用例数", 53, "独立的用例");
+            columnList1.Add("用例执行进度条", 100);
+            columnList1.Add("执行数", 55, "执行的用例");
+            columnList1.Add("部分执行数", 40, "部分执行");
+            columnList1.Add("未执行数", 40, "未执行");
+            columnList1.Add("执行通过", 40);
+            columnList1.Add("执行未通过", 55);
+            columnList1.Add("步骤数", 40, "测试点");
+            //columnList1.Add("部分执行通过", 100);
+            columnList1.Add("部分执行未通过", 72);
+            columnList1["名称"].TextAlign = CommonTextAlignEnum.Near;
+        }
+
+        public override bool OnPageCreate()
+        {
+            if(summary == null)
+            {
+                summary = new TestResultSummary(pid, currentvid);
+                summary.OnCreate();
+            }
+            // 标题行高为两行
+            flex1.Rows[0].Height = 40;
+            // 触发InitFlex函数
+            comboBox1.SelectedIndex = 0;
+            return true;
+        }
+
+        void InitFlex()
+        {
+            flex1.BeginInit();
+            flex1.Cols.Count = flex1.Cols.Fixed;
+            flex1.Rows.Count = flex1.Rows.Fixed;
+
+            Column c = flex1.Cols.Add();
+            c.Name = c.Caption = "名称";
+
+            foreach(string cn in FlexTreeClass.cols)
+            {
+                c = flex1.Cols.Add();
+                c.Name = c.Caption = cn;
+                c.TextAlign = c.TextAlignFixed = TextAlignEnum.CenterCenter;
+            }
+            c = flex1.Cols.Add();
+            c.Name = c.Caption = "tip";
+            c.Visible = false;
+
+            c = flex1.Cols.Add();
+            c.Name = c.Caption = "NodeType";
+            flex1.Cols["测试结果"].ImageAlign = ImageAlignEnum.CenterCenter;
+
+            c = flex1.Cols.Add();
+            c.Name = c.Caption = "用例执行进度条";
+
+            FlexTreeClass ftc = new FlexTreeClass(flex1, comboBox1.SelectedIndex) { includeShortcut = cbShortCut.Checked };
+            summary.DoVisit(ftc.AddTreeNode);
+            flex1.EndInit();
+
+            // create manager to display/edit the cell notes
+            //CellNoteManager mgr = new CellNoteManager(flex1);
+
+            flexAssist1.OnPageCreate();
+        }
+
+        /// <summary>
+        /// 返回测试项目统计信息
+        /// </summary>
+        public static DataTable GetCountTable(object oid)
+        {
+            TestResultSummary summary = new TestResultSummary(pid, currentvid);
+            summary.OnCreate();
+            ItemNodeTree nt = oid == null ? summary : summary[oid];
+            if(nt == null) return null;
+
+            FlexTreeClass ic = new FlexTreeClass(new DataTable());
+            nt.DoVisit(ic.GetDataRow);
+            return ic.dt;
+        }
+
+        public override bool OnPageClose(bool bClose)
+        {
+            flexAssist1.OnPageClose();
+            return true;
+        }
+
+        void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            RefreshDisplay();
+        }
+
+        void cbShortCut_CheckedChanged(object sender, EventArgs e)
+        {
+            RefreshDisplay();
+        }
+
+        void RefreshDisplay()
+        {
+            flexAssist1.OnPageClose();
+            InitFlex();
+        }
+
+        void flex1_OwnerDrawCell(object sender, OwnerDrawCellEventArgs e)
+        {
+            if(e.Row < flex1.Rows.Fixed) return;
+            string name = flex1.Cols[e.Col].Name;
+            if(name == "用例执行进度条")
+                DrawRectangle2(e);
+            if(name == "测试结果")
+            {
+                NodeType nt = (NodeType)(int)flex1[e.Row, "NodeType"];
+                if(nt == NodeType.TestItem)
+                {
+                    int index = (int)flex1[e.Row, e.Col];
+                    int image = 2;
+                    if(index == 1) image = 0;
+                    if(index == 3) image = 1;
+                    e.Image = imageList1.Images[image];
+                }
+                e.Text = "";
+            }
+        }
+
+        void DrawRectangle(OwnerDrawCellEventArgs e)
+        {
+            Row r = flex1.Rows[e.Row];
+            Column c = flex1.Cols[e.Col];
+            if(c.WidthDisplay <= 5) return;
+
+            int max = (int)flex1[flex1.Rows.Fixed, e.Col]; // 最一行为总数
+            if(max == 0) return; // 防止除零错
+            Rectangle rc = e.Bounds;
+            int value = (int)r[e.Col];
+            if(value == 0) return;
+            rc.Width = ((c.WidthDisplay - 4) * value / max);
+
+            // draw background
+            e.DrawCell(DrawCellFlags.Background | DrawCellFlags.Border);
+
+            // draw bar
+            rc.Inflate(0, -4);
+            rc.X += 1;
+            rc.Width += 1;
+            e.Graphics.FillRectangle(Brushes.Red, rc);
+            rc.Inflate(0, -1);
+            rc.X += 1;
+            rc.Width -= 2;
+            e.Graphics.FillRectangle(Brushes.LightPink, rc);  // 所有用例
+
+            //int height = rc.Height / 3;
+            //rc.Y += height+1;
+            //rc.Height -= height+1;
+            //e.Graphics.FillRectangle(Brushes.Green, rc);
+
+            //Rectangle rc2 = rc;
+            //value = (int)r["执行数"];
+            //int width = (int)(c.WidthDisplay * value / max);
+            //rc2.X += width;
+            //rc2.Width -= width;
+            //e.Graphics.FillRectangle(Brushes.Blue, rc2);
+
+            //value = (int)r["部分执行数"];
+            //width = (int)(c.WidthDisplay * value / max);
+            //rc2.X += width;
+            //rc2.Width -= width;
+            //e.Graphics.FillRectangle(Brushes.Red, rc2);
+
+            //rc.Y += height;
+            //rc.Height -= height;
+            //e.Graphics.FillRectangle(Brushes.Green, rc);
+
+            //rc2 = rc;
+            //value = (int)r["执行通过"];
+            //width = (int)(c.WidthDisplay * value / max);
+            //rc2.X += width;
+            //rc2.Width -= width;
+            //e.Graphics.FillRectangle(Brushes.Red, rc2); // 执行未通过
+
+            //value = (int)r["执行未通过"];
+            //width = (int)(c.WidthDisplay * value / max);
+            //rc2.X += width;
+            //rc2.Width -= width;
+            //e.Graphics.FillRectangle(Brushes.LightPink, rc2); // 部分执行未通过
+
+
+            //value = (int)r["部分执行未通过"];
+            //width = (int)(c.WidthDisplay * value / max);
+            //rc2.X += width;
+            //rc2.Width -= width;
+            //e.Graphics.FillRectangle(Brushes.LightGray, rc2); // 执行未通过
+
+            // draw cell content
+            e.DrawCell(DrawCellFlags.Content);
+        }
+
+        /// <summary>
+        /// 显示执行的用例所占的比例
+        /// </summary>
+        void DrawRectangle2(OwnerDrawCellEventArgs e)
+        {
+            Row r = flex1.Rows[e.Row];
+            Column c = flex1.Cols[e.Col];
+            if(c.WidthDisplay <= 5) return;
+
+            int total = cbShortCut.Checked ? (int)r["总用例数"] : (int)r["独立的用例数"]; // 总用例数
+            int execute = (int)r["执行数"];
+            int pass = (int)r["执行通过"];
+            if(total == 0) return; // 防止除零错
+
+            // draw background
+            e.DrawCell(DrawCellFlags.Background | DrawCellFlags.Border);
+
+            VoidFunc<int, Brush> DrawFunc = delegate(int width, Brush br)
+            {
+                Rectangle rc = e.Bounds;
+                rc.Width = ((c.WidthDisplay - 2) * width / total);
+                // draw bar
+                rc.Inflate(0, -4);
+                //rc.X += 1;
+                rc.Width += 1;
+                e.Graphics.FillRectangle(Brushes.Red, rc);
+                rc.Inflate(0, -1);
+                rc.X += 1;
+                rc.Width -= 2;
+                e.Graphics.FillRectangle(br, rc);  // 所有用例
+            };
+
+            DrawFunc(total, Brushes.Yellow);
+            DrawFunc(execute, Brushes.LightPink);
+            if(pass > 0) DrawFunc(pass, Brushes.LightGreen);
+            e.DrawCell(DrawCellFlags.Content);
+        }
+
+        void flex1_MouseEnterCell(object sender, RowColEventArgs e)
+        {
+            this.C1SuperTooltip1.Hide(flex1);
+            Row r = flex1.Rows[e.Row];
+            string msg = null;
+
+            if(flex1.Cols[e.Col].Name == "用例执行进度条")
+            {
+                if(e.Row < flex1.Rows.Fixed)
+                    msg = "绿色表示执行通过数<br/>红色表示执行未通过数<br/>黄色表示未执行数";
+                else
+                    msg = r["tip"] as string;
+            }
+            if(msg != null)
+                this.C1SuperTooltip1.SetToolTip(flex1, msg);
+        }
+    }
+
+    public class FlexTreeClass : BaseProjectClass
+    {
+        /// <summary>
+        /// [用例ID，步骤数]
+        /// </summary>
+        Dictionary<object, int> stepCountMap = new Dictionary<object, int>();
+
+        /// <summary>
+        /// 统计的用例中是否包括快捷方式
+        /// </summary>
+        public bool includeShortcut = false;
+
+        /// <summary>
+        /// 初始化测试步骤表
+        /// </summary>
+        void InitTestStep()
+        {
+            string sql = "SELECT 测试用例ID, Count(测试用例ID) AS 计数 FROM CA测试过程实体表 where 项目ID = ? GROUP BY 测试用例ID";
+            DataTable dtStep = ExecuteDataTable(sql, pid);
+            foreach(DataRow dr in dtStep.Rows)
+                stepCountMap[dr["测试用例ID"]] = (int)dr["计数"];
+        }
+
+        C1FlexGrid flex;
+        /// <summary>
+        /// 统计级别，0 测试对象，1 测试分类， 2 测试项
+        /// </summary>
+        int summerLevel;
+
+        public static string[] cols = { "总用例数", "执行数","部分执行数", "未执行数",
+            "执行通过", "执行未通过", "部分执行通过", "部分执行未通过","独立的用例数", "条目数","步骤数", "测试结果" };
+
+        /// <summary>
+        /// 构造函数，条目树
+        /// </summary>
+        public FlexTreeClass(C1FlexGrid flex, int summerLevel)
+        {
+            this.flex = flex;
+            this.summerLevel = summerLevel;
+            InitTestStep();
+        }
+
+        public void AddTreeNode(ItemNodeTree item)
+        {
+            if(item.nodeType == NodeType.TestCase) return;
+            if(item.nodeType == NodeType.TestItem && summerLevel < 2) return;
+            if(item.nodeType == NodeType.TestType && summerLevel < 1) return;
+
+            Row r = flex.Rows.Add();
+            r["名称"] = item.name;
+            Image image = ImageForm.treeNodeImage.Images[item.GetIconName()];
+            flex.SetCellImage(r.Index, flex.Cols["名称"].Index, image);
+
+            r.IsNode = true;
+            r.Node.Level = item.GetLevel();
+
+            ResultSummaryVisitClass vc = new ResultSummaryVisitClass { stepCountMap = stepCountMap, includeShortcut = includeShortcut };
+            item.DoVisit(vc.GetCaseCount);
+            int[] counts = vc.counts;
+            for(int i = 0; i < cols.Length - 1; i++)    // 除掉最后一列
+                r[cols[i]] = counts[i];
+            r["测试结果"] = vc.TestResult;
+            r["NodeType"] = (int)item.nodeType;
+
+            // create cell notes for every employee
+            int total = counts[8];
+            string s = "", s2;
+            s += "总用例数:<b> " + total + "</b><br/>";
+            s += "<br/>";
+            s += "执行数:<b>" + counts[1] + "</b><br/>";
+
+            s2 = "N/A";
+            if(total > 0)
+            {
+                double f = 100.0f * counts[1] / total;
+                s2 = f.ToString("0.#") + "%";
+            }
+            s += "执行比例:<b>" + s2 + "</b><br/>";
+            s += "<br/>";
+
+            s += "执行通过: <b>" + counts[4] + "</b><br/>";
+
+            s2 = "N/A";
+            if(total > 0)
+            {
+                double f = 100.0f * counts[4] / total;
+                s2 = f.ToString("0.#") + "%";
+            }
+            s += "执行通过比例: <b>" + s2 + "</b>";
+
+            r["tip"] = s;
+        }
+
+        public DataTable dt;
+
+        /// <summary>
+        /// 构造函数，生成统计表
+        /// </summary>
+        public FlexTreeClass(DataTable dt)
+        {
+            this.dt = dt;
+            DataColumnCollection dcc = dt.Columns;
+            for(int i = 0; i < cols.Length - 1; i++)    // 除掉最后一列
+                dcc.Add(cols[i], typeof(int));
+            dcc.Add(cols[cols.Length - 1], typeof(int));
+            GridAssist.AddColumn<int>(dt, "NodeType", "Level");
+            GridAssist.AddColumn(dt, "ID", "名称");
+            InitTestStep();
+        }
+
+        public void GetDataRow(ItemNodeTree item)
+        {
+            if(item.nodeType == NodeType.TestCase) return;
+            ResultSummaryVisitClass vc = new ResultSummaryVisitClass { stepCountMap = stepCountMap, includeShortcut = includeShortcut };
+            item.DoVisit(vc.GetCaseCount);
+
+            DataRow dr = dt.Rows.Add();
+            for(int i = 0; i < cols.Length - 1; i++)    // 除掉最后一列
+                dr[cols[i]] = vc.counts[i];
+            dr["测试结果"] = vc.TestResult;
+            dr["ID"] = item.id ?? DBNull.Value;
+            dr["NodeType"] = (int)item.nodeType;
+            dr["名称"] = item.name;
+            dr["Level"] = item.GetLevel();
+        }
+    }
+}

@@ -1,0 +1,58 @@
+﻿using System.Data;
+using C1.Win.C1FlexGrid;
+using Common;
+using TPM3.Sys;
+
+namespace TPM3.wx
+{
+    /// <summary>
+    /// 影响域分析
+    /// </summary>
+    [TypeNameMap("wx.InfluenceAnalysis")]
+    public partial class InfluenceAnalysis : MyBaseForm
+    {
+        public static ColumnPropList columnList1 = FlexGridAssist.GetColumnPropList<InfluenceAnalysis>(2);
+        static string sqlTable = "select * from [HG软件更动表] where 测试版本 = ? and 是否更动= ? order by 更动类型, 序号";
+        FlexGridAssist flexAssist;
+        DataTable dtTable;
+
+        public InfluenceAnalysis()
+        {
+            InitializeComponent();
+            FlexGridAssist.SetFlexGridWithFocus(flex1);
+            flex1.AllowDragging = AllowDraggingEnum.Columns;
+            flex1.Styles.Normal.WordWrap = true;
+
+            flexAssist = new FlexGridAssist(flex1) { doubleClickEdit = true, deleteClear = true, columnList = columnList1 };
+            flexAssist.AddOleColumn("影响域分析");
+        }
+
+        static InfluenceAnalysis()
+        {
+            columnList1.Add("更动类型", 100, false);
+            columnList1.Add("更动标识", 150, false);
+            columnList1.Add("影响域分析", 330);
+            columnList1.Add("测试要求", 200);
+            columnList1.Add("更动说明", 200);
+        }
+
+        public override bool OnPageCreate()
+        {
+            dtTable = dbProject.ExecuteDataTable(sqlTable, currentvid, true);
+            flexAssist.DataSource = dtTable;
+            flexAssist.OnPageCreate();
+
+            FlexGridAssist.AutoSizeRows(flex1, 2);
+            flex1.Rows[0].Height = 30;
+            return true;
+        }
+
+        public override bool OnPageClose(bool bClose)
+        {
+            flexAssist.OnPageClose();
+            dbProject.UpdateDatabase(dtTable, sqlTable);
+
+            return true;
+        }
+    }
+}

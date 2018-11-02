@@ -1,0 +1,129 @@
+using System;
+using System.ComponentModel;
+using System.Data;
+using System.Windows.Forms;
+using C1.Win.C1FlexGrid;
+using Common;
+using Common.Database;
+using Crownwood.Magic.Controls;
+using Crownwood.Magic.Forms;
+using TPM3.Sys;
+
+namespace TPM3.wx
+{
+    /// <summary>
+    /// 在当前测试的版本之上创建回归版本
+    /// </summary>
+    public partial class NewVersionForm : WizardDialog
+    {
+        static ColumnPropList columnList1 = GridAssist.GetColumnPropList<NewVersionForm>(11);
+        FlexGridAssist flexAssist1;
+        DataTable dtVersionList;
+
+        public NewVersionForm()
+        {
+            InitializeComponent();
+            FlexGridAssist.SetFlexGridWithFocus(flex1);
+            flexAssist1 = new FlexGridAssist(flex1, "ID", "序号");
+            flexAssist1.columnList = columnList1;
+            flex1.AllowDragging = AllowDraggingEnum.Columns;
+            flex1.SelectionMode = SelectionModeEnum.Row;
+        }
+
+        static NewVersionForm()
+        {
+            columnList1.Add("序号", 50);
+            columnList1.Add("版本名称", 100);
+            columnList1.Add("版本说明", 250);
+            columnList1.Add("版本创建时间", 100);
+            columnList1.Add("前向版本名称", 100);
+        }
+
+        public static DBAccess dbProject
+        {
+            get { return globalData.dbProject; }
+        }
+
+        public static GlobalData globalData
+        {
+            get { return GlobalData.globalData; }
+        }
+
+        public object pid
+        {
+            get { return globalData.projectID; }
+        }
+
+        /// <summary>
+        /// 初始化
+        /// </summary>
+        void NewVersionForm_Load(object sender, EventArgs e)
+        {
+            dtVersionList = DBLayer1.GetProjectVersionList(dbProject, pid, true);
+            flexAssist1.DataSource = dtVersionList;
+            flexAssist1.OnPageCreate();
+            flex1.Row = flex1.Rows.Count - 1;
+
+            FlexGridAssist.AutoSizeRows(flex1, 6);
+            wizardControl.EnableFinishButton = WizardControl.Status.No;
+
+            // 解决控件显示不全的问题
+            foreach(WizardPage pages in wizardControl.WizardPages)
+                pages.Dock = DockStyle.Fill;
+        }
+
+        protected override void OnNextClick(object sender, CancelEventArgs e)
+        {
+            base.OnNextClick(sender, e);
+            string msg = OnNextClick();
+            if(msg != null)
+            {
+                if(msg != "") MessageBox.Show(msg);
+                e.Cancel = true;
+                return;
+            }
+        }
+
+        /// <summary>
+        /// 返回null表示成功。返回""表示有错误，但不需要显示
+        /// </summary>
+        protected string OnNextClick()
+        {
+            int selectedIndex = wizardControl.SelectedIndex;   // 在进入下一步之前的页序号
+
+            //选择模板页
+            if(selectedIndex == 1)
+            {
+                if(GridAssist.IsNull(tbVersionName.Text)) return "回归版本名称不能为空";
+                foreach(DataRow dr in dtVersionList.Rows)
+                {
+                    if(Equals(dr["版本名称"], tbVersionName.Text))
+                        return "新的回归版本名称不能与已有的回归版本名称重名";
+                }
+            }
+
+            if(selectedIndex == wizardControl.WizardPages.Count - 2)
+                wizardControl.EnableFinishButton = WizardControl.Status.Yes;
+            return null;
+        }
+
+        protected override void OnBackClick(object sender, CancelEventArgs e)
+        {
+            wizardControl.EnableFinishButton = WizardControl.Status.No;
+            wizardControl.EnableNextButton = WizardControl.Status.Default;
+        }
+
+        /// <summary>
+        /// 创建回归版本
+        /// </summary>
+        protected override void OnFinishClick(object sender, EventArgs e)
+        {
+            object vid = DBLayer1.CreateNewVersion(dbProject, pid, flex1.Rows[flex1.Row]["ID"], tbVersionName.Text, tbVersionMemo.Text);
+            globalData.currentvid = vid;
+            MainForm.mainFrm.VersionChanged = true;
+            MainForm.mainFrm.InitFormByVersion();
+
+            base.OnFinishClick(sender, e);
+        }
+    }
+}

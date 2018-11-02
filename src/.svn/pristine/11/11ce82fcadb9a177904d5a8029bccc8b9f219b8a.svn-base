@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<界面设计 >
+  <TreeNode NodeName="项目管理" NodeClass="wx.WmfImageForm" Image="项目基本信息.gif" Icon="阶段" >
+    <TreeNode NodeName="项目基本信息" NodeClass="wx.ProjectBaseInfoForm" Icon="Word" />
+  </TreeNode>
+  <TreeNode NodeName="回归测试方案"  >
+    <TreeNode NodeName="被测软件概述" NodeClass="wx.Ole1Form" title="被测软件概述" content="被测软件概述" />
+    <TreeNode NodeName="测试任务概述" NodeClass="wx.Ole1Form" title="测试任务概述" content="测试任务概述" />
+    <TreeNode NodeName="软件更动说明" NodeClass="wx.RegressModifyInfo"/>
+    <TreeNode NodeName="影响域分析"   NodeClass="wx.InfluenceAnalysis"/>
+    <TreeNode NodeName="回归测试依据" NodeClass="wx.RequireTreeForm" title="回归测试依据" content="回归测试依据" />
+    <TreeNode NodeName="测试人员安排" NodeClass="wx.PersonForm" />
+    <TreeNode NodeName="测试环境"     NodeClass="wx.TestEnviForm" />
+    <TreeNode NodeName="测试进度计划" NodeClass="wx.TestPlanForm" />
+    <TreeNode NodeName="回归测试策略" NodeClass="wx.TestStrategyForm" />
+    <TreeNode NodeName="测试用例设计" NodeClass="zxd.TestTreeForm" type="design"  />
+    <TreeNode NodeName="测试文档信息" NodeClass="wx.SummaryForm" DocName="回归测试方案" title1="回归测试方案文档概述" title2="与其他文档的关系" />
+    <TreeNode NodeName="输出本阶段文档" NodeClass="chq.BatchOutput" step="回归测试方案"  />
+  </TreeNode>
+
+  <TreeNode NodeName="回归测试执行" NodeClass="wx.WmfImageForm"  Icon="阶段" Image="测试实施.gif" >
+    <TreeNode NodeName="回归测试记录" NodeClass="zxd.TestTreeForm" type="result"  />
+    <TreeNode NodeName="问题报告单" NodeClass="zxd.pbl.PblRepsForm" title1="测试实施-问题报告单" />
+    <TreeNode NodeName="回归问题报告概述" NodeClass="wx.SummaryForm" DocName="回归问题报告" title1="回归问题报告文档概述" />
+    <TreeNode NodeName="输出本阶段文档" NodeClass="chq.BatchOutput" step="回归测试执行"  />
+  </TreeNode>
+
+  <TreeNode NodeName="回归测试总结" DocName="测试总结" NodeClass="wx.WmfImageForm"  Icon="阶段" Image="测试总结.gif"   >
+    <TreeNode NodeName="文档有效性声明" NodeClass="wx.Ole1Form"  content="测试报告声明"   />
+    <TreeNode NodeName="定型测评报告概述" NodeClass="wx.SummaryForm" DocName="回归测试报告" title1="回归测试报告文档概述" title2="与其他文档的关系" />
+    <TreeNode NodeName="测评过程概述" NodeClass="wx.DX_TestSummaryForm"   />
+    <TreeNode NodeName="测试结果概述" NodeClass="wx.TestResultForm"   />
+    <TreeNode NodeName="输出回归测试文档" NodeClass="chq.BatchOutput" step="回归测试报告"  />
+  </TreeNode>
+</界面设计>

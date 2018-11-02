@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<界面设计 >
+  <!--修改后的回归树-->
+  <TreeNode NodeName="定制项目信息" NodeClass="wx.WmfImageForm" Image="项目基本信息.gif" Icon="阶段" >
+    <TreeNode NodeName="项目基本信息" NodeClass="wx.ProjectBaseInfoForm" Icon="Word" />
+    <TreeNode NodeName="定制测试类型" NodeClass="wx.TestClassTemplateList" Icon="Word"/>
+    <TreeNode NodeName="测试用例设计方法" NodeClass="wx.TestMethodForm" />
+    <TreeNode NodeName="问题类别和级别定制" NodeClass="wx.FallTypeForm" />
+    <TreeNode NodeName="定制测试项的优先级" NodeClass="wx.TestPriorityForm"  />
+    <TreeNode NodeName="问题标识结构定制" NodeClass="zxd.pbl.CustomPblSignForm"  />
+  </TreeNode>
+  <TreeNode NodeName="测试过程"  Icon="阶段" NodeClass="wx.WmfImageFormSelect" Image1="测试过程1.gif" Image2="测试过程2.gif" >
+    <TreeNode NodeName="测试需求分析" DocName="需求分析" NodeClass="wx.WmfImageForm"  Icon="阶段" Image="测试需求分析.gif"  >
+      <TreeNode NodeName="梳理测试依据" NodeClass="wx.RequireTreeForm" />
+      <TreeNode NodeName="文档概述" NodeClass="wx.SummaryForm" title1="测试需求文档概述" title2="与其他文档的关系"  />
+      <TreeNode NodeName="被测软件概述" NodeClass="wx.Ole1Form" title="被测软件概述" content="被测软件概述" step="1"  />
+      <TreeNode NodeName="测试任务概述" NodeClass="wx.Ole1Form" title="测试任务概述" content="测试任务概述"   />
+      <TreeNode NodeName="测试定义" NodeClass="zxd.TestTreeForm" type="require"  />
+      <TreeNode NodeName="测试项目终止条件" NodeClass="wx.Ole1Form" content="项目终止条件"  />
+      <TreeNode NodeName="其他要求" NodeClass="wx.Ole1Form" content="其它要求"  />
+      <TreeNode NodeName="输出本阶段文档" NodeClass="chq.OutputForm" step="需求分析"  >
+        <Document name = "软件测试需求规格说明" template = "测试需求规格说明模板-1.doc"/>
+      </TreeNode>
+    </TreeNode>
+    <TreeNode NodeName="测试策划" DocName="测试计划" NodeClass="wx.WmfImageForm"  Icon="阶段" Image="测试策划.gif"  >
+      <TreeNode NodeName="文档概述" NodeClass="wx.SummaryForm" title1="测试计划文档概述" title2="与其他计划的关系"   />
+      <TreeNode NodeName="被测软件概述" NodeClass="wx.Ole1Form" title="被测软件概述" content="被测软件概述"  step="2"   />
+      <TreeNode NodeName="软件测试环境" NodeClass="wx.TestEnviForm"   />
+      <TreeNode NodeName="测试组织与人员" NodeClass="wx.PersonForm"   />
+      <TreeNode NodeName="测试项目的测试策略" NodeClass="wx.TestStrategyForm"   />
+      <TreeNode NodeName="回归测试影响域分析" NodeClass="lt.RegressionTestInfluenceForm"    />
+      <TreeNode NodeName="测试定义" NodeClass="zxd.TestTreeForm" type="plan"   />
+      <TreeNode NodeName="数据记录、整理和分析" NodeClass="wx.Ole1Form" title="数据记录、整理和分析" content="数据记录整理"   />
+      <TreeNode NodeName="测试进度计划" NodeClass="wx.TestPlanForm"   />
+      <TreeNode NodeName="测试项目终止条件" NodeClass="wx.Ole1Form" content="项目终止条件"  />
+      <TreeNode NodeName="输出本阶段文档" NodeClass="chq.OutputForm" step="测试计划" >
+        <Document name = "软件测试计划" template = "软件测试计划模板-1.doc"/>
+      </TreeNode>
+    </TreeNode>
+    <TreeNode NodeName="测试设计" DocName="测试说明" NodeClass="wx.WmfImageForm"  Icon="阶段" Image="测试设计.gif"  >
+      <TreeNode NodeName="概述" NodeClass="wx.SummaryForm" title1="测试说明文档概述"   />
+      <TreeNode NodeName="正式合格性测试准备" subform="wx.TestPrepareForm" NodeClass="wx.ObjectSubForm" AddRoot="false" QueryType="Object" />
+      <TreeNode NodeName="设计测试用例" NodeClass="zxd.TestTreeForm" type="design"  />
+      <TreeNode NodeName="输出本阶段文档" NodeClass="chq.OutputForm" step="测试设计" >
+        <Document name = "软件测试说明" class="软件测试说明" template = "软件测试说明模板-1.doc"/>
+        <Document name = "软件测试记录单" class="软件测试记录单" template ="软件测试记录单模板-1.doc"/>
+      </TreeNode>
+    </TreeNode>
+    <TreeNode NodeName="测试实施" DocName="测试记录" NodeClass="wx.WmfImageForm"  Icon="阶段" Image="测试实施.gif"  >
+      <TreeNode NodeName="提交测试用例执行结果" NodeClass="zxd.TestTreeForm" type="result" />
+      <TreeNode NodeName="未完整执行测试用例" subform="wx.UnExecCase" NodeClass="wx.ObjectSubForm"  />
+      <TreeNode NodeName="测试人员与时间" subform="wx.TestcaseSummeryInfoControl" NodeClass="wx.ObjectSubForm"  />
+      <TreeNode NodeName="问题报告单" NodeClass="zxd.pbl.PblRepsForm" title1="测试实施-问题报告单" />
+      <TreeNode NodeName="输出本阶段文档" NodeClass="chq.OutputForm" step="测试实施" >
+        <Document name = "软件测试记录实测结果" class="软件测试记录实测结果" template = "测试记录结果模板-1.doc"/>
+        <Document name = "软件问题报告" class="软件问题报告" template = "问题报告模板-1.doc" type="result"/>
+      </TreeNode>
+    </TreeNode>
+    <TreeNode NodeName="测试总结" DocName="测试总结" NodeClass="wx.WmfImageForm"  Icon="阶段" Image="测试总结.gif"   >
+      <TreeNode NodeName="测试报告声明" NodeClass="wx.Ole1Form" title="测试报告声明" content="测试报告声明"   />
+      <TreeNode NodeName="测试报告文档概述" NodeClass="wx.SummaryForm" title1="测试报告文档概述"   />
+      <TreeNode NodeName="问题报告文档概述" NodeClass="wx.SummaryForm" title1="测试报告文档概述"   DocName="问题报告" />
+      <TreeNode NodeName="测试情况说明" NodeClass="wx.Ole1Form" title="测试情况说明" content="测试情况说明"   />
+      <TreeNode NodeName="测试结果概述" NodeClass="wx.TestResultForm"   />
+      <TreeNode NodeName="问题报告单" NodeClass="zxd.pbl.PblRepsForm" title1="测试总结-问题报告单" />
+      <TreeNode NodeName="输出本阶段文档" NodeClass="chq.OutputForm" step="测试总结" >
+        <Document name = "软件问题报告" class="软件问题报告" template = "问题报告模板-1.doc" type="summary"/>
+        <Document name = "软件测试记录实测结果" class="软件测试记录实测结果" template = "测试记录结果模板-1.doc"/>
+      </TreeNode>
+    </TreeNode>
+  </TreeNode>
+</界面设计>

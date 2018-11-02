@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="TPM3.zxd.util.ImportUC">
+    <Position X="0.5" Y="0.5" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAKKIgACAQAgkBgCCEMEACVAAEQQwCAIEAAEgEjjA=</HashCode>
+      <FileName>zxd\util\ImportUC.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TPM3.zxd.util.ImportUC1">
+    <Position X="3.5" Y="0.5" Width="4" />
+    <TypeIdentifier>
+      <HashCode>AAAAKKIgACAQAgkBgCCEIEgCVAAEQQwRAIEACEgEjjA=</HashCode>
+      <FileName>zxd\util\ImportUC1.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TPM3.zxd.util.UsecaseSelView">
+    <Position X="5.25" Y="0.75" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAsKIAACAQAggAAACAAAAKQAAAAAACAIMAAAgAADA=</HashCode>
+      <FileName>zxd\util\UsecaseSelView.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="SimSun" Size="9" />
+</ClassDiagram>

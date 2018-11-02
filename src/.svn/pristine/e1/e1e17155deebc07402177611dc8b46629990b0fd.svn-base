@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<界面设计 >
+  <!--回归准备-->
+  <TreeNode NodeName="回归测试准备工作阶段" NodeClass="wx.WmfImageForm" Image="项目基本信息.gif" Icon="阶段" >
+    <TreeNode NodeName="本版本回归测试依据"  NodeClass="wx.RequireTreeForm" title="回归测试依据" content="回归测试依据"   />
+    <TreeNode NodeName="前一次测试软件更动报告单" NodeClass="wx.SoftwareModifyForm" title="前一次测试软件更动报告单"  />
+    <TreeNode NodeName="问题报告处置单" NodeClass="zxd.pbl.PblRepsForm" title1="测试实施-问题报告单" mode="回归" />
+    <TreeNode NodeName="问题报告附加需求" NodeClass="wx.RegressFallRequireTraceForm" />
+  </TreeNode>
+</界面设计>

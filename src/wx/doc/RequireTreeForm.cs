@@ -1,0 +1,584 @@
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Drawing;
+using System.Windows.Forms;
+using C1.Win.C1FlexGrid;
+using Common;
+using TPM3.Sys;
+using Z1.tpm.DB;
+using ProjectInfo = Common.ProjectInfo;
+
+namespace TPM3.wx
+{
+    /// <summary>
+    /// 需求树编辑
+    /// </summary>
+    [TypeNameMap("wx.RequireTreeForm")]
+    public partial class RequireTreeForm : MyBaseForm
+    {
+        FlexGridAssist flexAssist;
+        FlexTreeDatatable flexTreeObject;
+
+        /// <summary>
+        /// 根节点与非根节点的显示形式
+        /// 组合显示形式
+        /// </summary>
+        const string RootFormat = "{0}", NonRootFormat = "{0}", UnionFormat = "{0}_{1}";
+
+        public static ColumnPropList columnList1 = FlexGridAssist.GetColumnPropList<RequireTreeForm>(31);
+        public static ColumnPropList columnList2 = FlexGridAssist.GetColumnPropList<RequireTreeForm>(32);
+        DataTable dtPlanTree;
+        const string sqlRequire = "select * from [SYS测试依据表] where 测试版本 = ? order by 序号";
+
+        public RequireTreeForm()
+        {
+            InitializeComponent();
+            FlexGridAssist.SetFlexGridWithFocus(flex1);
+            //flex1.SelectionMode = SelectionModeEnum.RowRange;  // 多行选择
+            flex1.AllowDragging = AllowDraggingEnum.Columns;
+            flex1.Styles.Normal.WordWrap = true;
+            flex1.Styles.Alternate.BackColor = flex1.Styles.Normal.BackColor;
+
+            flexAssist = new FlexGridAssist(flex1, "ID", "序号");
+            flexAssist.doubleClickEdit = true;
+            flexAssist.deleteClear = false;
+            flexAssist.columnList = columnList1;
+
+            flexTreeObject = flexAssist.SetFlexTree("父节点ID", "测试依据");
+            flexTreeObject.newObjectEvent += OnAddPlan;
+            //flexTreeObject.SetSerialColumn("章节号", "测试依据");
+            flexTreeObject.getSerialDisplayStringEvent += GetSerialDisplayString;
+
+            flexTreeControl1.flexTreeObject = flexTreeObject;
+        }
+
+        /// <summary>
+        /// 根节点格式为: (TD1)XXX
+        /// 非根节点格式为: (TR1)XXX
+        /// </summary>
+        static string GetSerialDisplayString(Row r)
+        {
+            object sign;
+            if(r.Node.Level == 0)
+                sign = string.Format(RootFormat, r["章节号"]);   // 目前内容临时保存在“章节号”里，不用"测试依据标识"列
+            else
+                sign = string.Format(NonRootFormat, r["章节号"]);
+            return "(" + sign + ")" + r["测试依据"];
+        }
+
+        static RequireTreeForm()
+        {
+            columnList1.Add("测试依据", 200, title1);
+            //columnList1.Add("测试依据标识", 90, "文档标识");
+            columnList1.Add("章节号", 100, "章节号/文件标识");
+            columnList1.Add("测试依据说明", 300, title2);
+            columnList1.Add("是否追踪", 70, "是否为追踪项");
+            columnList1.Add("未追踪原因说明", 200, "不追踪原因");
+
+            columnList2.Add("测试依据", 200, title1);
+            columnList2.Add("是否追踪", 70);
+            columnList2.Add("测试依据说明", 200, title2);
+        }
+
+        public const string title1 = "依据条款的章节号和名称", title2 = "依据条款简要说明";
+
+        public override bool OnPageCreate()
+        {
+            dtPlanTree = dbProject.ExecuteDataTable(sqlRequire, currentvid);
+            dtPlanTree.Columns["项目ID"].DefaultValue = pid;
+            dtPlanTree.Columns["测试版本"].DefaultValue = currentvid;
+            dtPlanTree.Columns["是否追踪"].DefaultValue = true;
+            dtPlanTree.Columns["依据类型"].DefaultValue = (int)TestRequireType.Require;
+            foreach(DataRow dr in dtPlanTree.Rows)
+            {   // 根节点的"章节号"列的内容实际是"测试依据标识"
+                if(Equals(dr["父节点ID"], "~root"))
+                    GridAssist.SetRowValue(dr, "章节号", dr["测试依据标识"]);
+            }
+
+            // 初始版本不显示导入按钮
+            btImportPreVersion.Visible = DBLayer1.GetPreVersion(dbProject, currentvid) != null;
+
+            if(dtPlanTree == null)
+            {
+                MessageBox.Show("打开测试依据表失败,请检查数据库!!!");
+                return false;
+            }
+
+            flexTreeObject.GroupByRoot = true;
+            flexAssist.DataSource = dtPlanTree;
+            flexAssist.OnPageCreate();
+            flex1.Cols["未追踪原因说明"].ComboList = GetUntrackReason();
+
+            FlexGridAssist.AutoSizeRows(flex1);
+            flex1.Rows[0].Height = 30;
+
+            return true;
+        }
+
+        public override bool OnPageClose(bool bClose)
+        {
+            flex1.FinishEditing();
+            flexAssist.OnPageClose();
+            // 编辑完毕后，再把"章节号"的内容拷贝回去
+            foreach(DataRow dr in dtPlanTree.Rows)
+            {   // 根节点的"章节号"列的内容实际是"测试依据标识"
+                if(dr.RowState == DataRowState.Deleted) continue;
+                if(Equals(dr["父节点ID"], "~root"))
+                    GridAssist.SetRowValue(dr, "测试依据标识", dr["章节号"]);
+            }
+            dbProject.UpdateDatabase(dtPlanTree, sqlRequire);
+
+            return true;
+        }
+
+        /// <summary>
+        /// 新节点的序号
+        /// </summary>
+        protected int newIndex = 1;
+
+        void OnAddPlan(Row r)
+        {
+            r["ID"] = FunctionClass.NewGuid;
+            r["是否追踪"] = true;
+            if(r.Node.Level == 0)
+            {
+                r["测试依据"] = "新文档名称";
+                r["测试依据标识"] = "TD" + (newIndex++);
+                r["章节号"] = "1";
+            }
+            else
+            {
+                r["测试依据"] = "新测试依据" + (newIndex++);
+                r["测试依据标识"] = "TDx";
+                r["章节号"] = "1";
+            }
+        }
+
+        void flex1_OwnerDrawCell(object sender, OwnerDrawCellEventArgs e)
+        {
+            if(e.Row < flex1.Rows.Fixed || e.Col < flex1.Cols.Fixed) return;
+            Row r = flex1.Rows[e.Row];
+            int nodelevel = r.Node.Level;
+            string colName = flex1.Cols[e.Col].Name;
+
+            if(!flex1.Styles.Contains("grayStyle"))
+            {
+                var cs = flex1.Styles.Add("grayStyle", flex1.Styles.Normal);
+                cs.BackColor = Color.FromArgb(234, 234, 234);
+            }
+            if((colName == "测试依据标识" && r.Node.Level > 0) || (colName == "章节号" && r.Node.Level == 0))
+            {
+                e.Style = flex1.Styles["grayStyle"];
+                //e.Text = "";
+            }
+            if(colName == "测试依据")
+                e.Text = GetSerialDisplayString(r);
+
+            e.Style.ForeColor = Color.Black;
+            if(nodelevel == 0)    // 顶级节点
+            {
+                if(colName == "是否追踪")
+                {   // 顶级节点不显示是否追踪
+                    e.DrawCell(DrawCellFlags.Background);
+                    e.DrawCell(DrawCellFlags.Border);
+                    e.Handled = true;
+                }
+                if(colName == "测试依据")
+                    e.Image = ImageForm.treeNodeImage.Images["project"];
+                if(colName == "未追踪原因说明")
+                    e.Text = "";
+            }
+            else
+            {
+                if(!(bool)r["是否追踪"] && IsNull(r["未追踪原因说明"]))
+                    e.Style.ForeColor = Color.Red;   // 不追踪项必须填写不追踪原因
+                if(colName == "未追踪原因说明" && (bool)r["是否追踪"])
+                    e.Text = "";  // 如果追踪，则不显示原因
+            }
+        }
+
+        void flex1_BeforeEdit(object sender, RowColEventArgs e)
+        {
+            if(e.Row < flex1.Rows.Fixed || e.Col < flex1.Cols.Fixed) return;
+            Row r = flex1.Rows[e.Row];
+            string colName = flex1.Cols[e.Col].Name;
+            if(colName == "是否追踪" && r.Node.Level == 0)
+                e.Cancel = true;
+        }
+
+        /// <summary>
+        /// 是否按测试依据分类
+        /// </summary>
+        public static bool GroupByDoc
+        {
+            get
+            {   // 缺省值为true
+                return true;
+                // return MyProjectInfo.GetProjectContent<bool>("测试依据分类", true);
+            }
+            set
+            {
+                ProjectInfo.SetProjectString(dbProject, pid, "测试依据分类", value.ToString());
+            }
+        }
+
+        /// <summary>
+        /// 初始化测试需求下拉列表
+        /// </summary>
+        public static void InitColumnRefMap(ColumnRefMap cm, object vid)
+        {
+            cm.columnList = columnList2;
+            cm.flexParentCol = "父节点ID";
+            cm._rootParentID = GlobalData.rootID;
+            cm.multiSelect = true;
+            cm.convertKey = true;
+            cm.seperator = "\r\n";
+            cm.OnCreateFormReadyEvent += OnCreateFormReadyEventHandler;
+            cm.getDataSourceEvent = () => GetRequireTreeTable(true, vid);
+            cm.canRowSelectEvent += r => r.Node.Level > 0;
+            cm.flexKey = "ID";
+            cm.flexDisplay = "测试依据";
+            cm.allowUserInput = false;
+        }
+
+        static Font font1, font2;
+        /// <summary>
+        /// 选择需求下拉框设置
+        /// </summary>
+        static void OnCreateFormReadyEventHandler(Form f)
+        {
+            MultiColumnDropDown f2 = f as MultiColumnDropDown;
+            C1FlexGrid flex = f2.flex1;
+            flex.OwnerDrawCell += dropDownflex_OwnerDrawCell;
+
+            if(font1 == null)
+            {
+                font1 = flex.Styles.Normal.Font;
+                font2 = new Font(font1, FontStyle.Bold);
+            }
+        }
+
+        static void dropDownflex_OwnerDrawCell(object sender, OwnerDrawCellEventArgs e)
+        {
+            C1FlexGrid flex = sender as C1FlexGrid;
+            if(e.Row < flex.Rows.Fixed || e.Col < flex.Cols.Fixed) return;
+            Row row = flex.Rows[e.Row];
+            string name = flex.Cols[e.Col].Name;
+
+            e.Style.Font = font1;
+            if(row.Node.Level == 0)
+            {   // 用黑体字显示
+                e.Style.Font = font2;
+            }
+            if(flex.Cols["测试依据"].Index == e.Col && row.Node.Level == 0)
+                e.Image = ImageForm.treeNodeImage.Images["project"];
+
+            if(name == "是否追踪")
+            {
+                int image = true.Equals(row["是否追踪"]) ? 1 : 0;
+                if(row.Node.Level == 0) image = 3;
+                e.Image = ImageForm._imageForm.ilYesNo.Images[image];
+            }
+        }
+
+        void flex1_StartEdit(object sender, RowColEventArgs e)
+        {
+            if(e.Row < flex1.Rows.Fixed || e.Col < flex1.Cols.Fixed) return;
+            Row r = flex1.Rows[e.Row];
+            string colName = flex1.Cols[e.Col].Name;
+
+            string msg = null;
+            if(colName == "测试依据标识" && r.Node.Level > 0)
+                msg = "仅有文档可以设置标识。测试依据项直接引用文档的标识";
+            //if(colName == "章节号" && r.Node.Level == 0)
+            //    msg = "文档不能设置章节号，仅有文档内容可以设置章节号";
+            if(colName == "未追踪原因说明" && ((bool)r["是否追踪"] || r.Node.Level == 0))
+                msg = "当条款项已经被追踪或者条款项是文档标题时，不需要填写不追踪原因";
+            if(msg != null)
+            {
+                MessageBox.Show(msg);
+                e.Cancel = true;
+            }
+        }
+
+        void flex1_MouseEnterCell(object sender, RowColEventArgs e)
+        {
+            this.C1SuperTooltip1.Hide(flex1);
+            this.C1SuperTooltip1.RemoveAll();
+
+            if(e.Row >= flex1.Rows.Fixed) return;
+            string colName = flex1.Cols[e.Col].Name, msg = null;
+            if(colName == "测试依据标识")
+            {
+                msg = @"仅对测试条款所在的文档有效，代表文件的标识号，测试条款项不需要手工填写。
+<br/>最终的测试条款标识为：<b>文件标识_章节号</b>。<br/>
+例如：文件标识为Req，测试条款章节号为2.1.2.1，则测试条款标识为<b>Req_2.1.2.1</b>";
+            }
+            if(colName == "章节号")
+            {
+                msg = @"测试条款文档没有章节号，仅有测试条款项有章节号。
+<br/>最终的测试条款标识为：<b>文档标识_章节号</b>。<br/>
+例如：文档标识为Req，测试条款章节号为2.1.2.1，则测试条款标识为<b>Req_2.1.2.1</b>";
+            }
+            if(colName == "未追踪原因说明")
+            {
+                msg = @"如果某条测试条款不需要追踪，则需要在此填写不追踪原因。条款文档不需要填写不追踪原因";
+            }
+            if(msg != null)
+                this.C1SuperTooltip1.SetToolTip(flex1, msg);
+        }
+
+        /// <summary>
+        /// 获取不跟踪原因
+        /// </summary>
+        string GetUntrackReason()
+        {
+            string s = MyProjectInfo.GetProjectContent("不追踪原因列表");
+            if(IsNull(s)) s = "|该条款仅为一标题|该条款为硬件项|该条款在当前测试环境下不可测试";
+            return s;
+        }
+
+        void flex1_AfterEdit(object sender, RowColEventArgs e)
+        {
+            flex1.Invalidate();
+        }
+
+        //void flex1_CellButtonClick(object sender, RowColEventArgs e)
+        //{
+        //    var flex = sender as C1FlexGrid;
+        //    int row = e.Row, col = e.Col;
+
+        //    if(flex.Cols[col].Name == "测试依据")
+        //    {
+        //        // 获取网格的位置
+        //        Rectangle rc = flex.GetCellRect(row, col, true);
+        //        rc = flex.RectangleToScreen(rc);
+
+        //        RequireItemInfoForm f = new RequireItemInfoForm(flex.Rows[row], rc);
+        //        //f.cm.columnList = columnList2;
+        //        //f.Closed += delegate { f_Closed(f, row, col); };
+        //        f.Show();
+        //    }
+        //}
+
+        /// <summary>
+        /// 获取拼装后的测试依据表
+        /// </summary>
+        public static DataTable GetRequireTreeTable(bool mergeRequireType, object vid)
+        {
+            InnerClass inner = new InnerClass();
+            return inner._GetRequireTreeTable(mergeRequireType, vid);
+        }
+
+        class InnerClass
+        {
+            DataTable dt;
+            DataTableMap dtm;
+
+            int requireindex = 1;
+
+            /// <summary>
+            /// 获取拼装后的测试依据表
+            /// </summary>
+            /// <param name="mergeRequireType">是否把测试依据类别一并显示</param>
+            /// <param name="vid"></param>
+            public DataTable _GetRequireTreeTable(bool mergeRequireType, object vid)
+            {
+                dt = dbProject.ExecuteDataTable(sqlRequire, vid);
+
+                string previd =
+                    CommonDB.GetPreVersion(dbProject, pid as string, currentvid as string);
+
+                if(!string.IsNullOrEmpty(previd))
+                    TransAlterToTrace(dt, vid);
+
+                dtm = new DataTableMap(dt, "ID");
+                GridAssist.AddColumn(dt, "测试依据类别", "测试依据类别ID");
+                GridAssist.AddColumn<int>(dt, "测试依据类别序号", "测试依据序号");
+
+                foreach(DataRow dr in dt.Rows)
+                {
+                    DataRow drRoot = GetRootRow(dr["ID"]);
+                    if(drRoot == null) continue;
+                    dr["测试依据类别"] = drRoot["测试依据"];
+                    dr["测试依据类别ID"] = drRoot["ID"];
+                    dr["测试依据类别序号"] = drRoot["序号"];
+                }
+                SetChapter(GlobalData.rootID, 0);
+
+                foreach(DataRow dr in dt.Rows)
+                {
+                    DataRow drRoot = GetRootRow(dr["ID"]);
+                    if(drRoot == null) continue;
+                    string sign;
+                    if(Equals(dr["测试依据类别ID"], dr["ID"]))  // 根节点
+                        sign = string.Format(RootFormat, dr["测试依据标识"]);
+                    else
+                    {
+                        if(mergeRequireType && GroupByDoc)
+                            sign = string.Format(UnionFormat, drRoot["测试依据标识"], dr["章节号"]);
+                        else
+                            sign = string.Format(NonRootFormat, dr["章节号"]);
+                    }
+                    dr["测试依据"] = "(" + sign + ")" + dr["测试依据"];
+                    dr["测试依据标识"] = sign;
+                }
+                RearrangeDataTable(GlobalData.rootID);
+                return dt;
+            }
+
+            void TransAlterToTrace(DataTable tbl, object vid)
+            {
+                DataTable pbl_tbl = GetAlters(vid, 1);
+                InsertRecords(pbl_tbl, tbl, "纠错性更动", "纠错性更动", 100);
+                DataTable modify_tbl = GetAlters(vid, 2);
+                InsertRecords(modify_tbl, tbl, "适应性更动", "适应性更动", 101);
+                DataTable add_tbl = GetAlters(vid, 3);
+                InsertRecords(add_tbl, tbl, "完善性更动", "完善性更动", 102);
+                DataTable pre_tbl = GetAlters(vid, 4);
+                InsertRecords(pre_tbl, tbl, "预防性更动", "预防性更动", 103);
+                DataTable other_tbl = GetAlters(vid, 5);
+                InsertRecords(other_tbl, tbl, "其它更动", "其它更动", 104);
+            }
+
+            static DataTable GetAlters(object vid, int alter_type)
+            {
+                const string Sql = "SELECT * FROM HG软件更动表 WHERE 测试版本=? AND 更动类型=? AND 是否更动=? ORDER BY 序号";
+                return dbProject.ExecuteDataTable(Sql, vid, alter_type, true);
+            }
+
+            private void InsertRecords(DataTable src_tbl, DataTable dst_tbl, string root_name, string root_sign,
+                                       int sequence)
+            {
+                var ispbl = root_name.Equals("纠错性更动");
+
+                string root_id = InsertRoot(dst_tbl, root_name, root_sign, sequence);
+                int seq = 1;
+
+                foreach(DataRow row in src_tbl.Rows)
+                {
+                    DataRow new_row = dst_tbl.NewRow();
+                    new_row["ID"] = row["ID"];
+                    new_row["项目ID"] = row["项目ID"];
+                    new_row["依据类型"] = ispbl ? 2 : 3;
+                    new_row["序号"] = row["序号"];
+                    new_row["测试依据"] = row["更动标识"];
+                    new_row["测试依据说明"] = row["更动说明"];
+                    new_row["父节点ID"] = root_id;
+                    new_row["章节号"] = seq++;
+                    new_row["测试版本"] = currentvid;
+                    new_row["是否追踪"] = true;
+                    dst_tbl.Rows.Add(new_row);
+                }
+            }
+
+            string InsertRoot(DataTable dst_tbl, string root_name, string root_sign, int sequence)
+            {
+                DataRow root_row = dst_tbl.NewRow();
+                root_row["ID"] = FunctionClass.NewGuid;
+                root_row["项目ID"] = pid;
+                root_row["依据类型"] = 1;
+                root_row["序号"] = sequence;
+                root_row["测试依据"] = root_name;
+                root_row["测试依据标识"] = root_sign;
+                root_row["父节点ID"] = "~root";
+                root_row["章节号"] = 1;
+                root_row["测试版本"] = currentvid;
+                dst_tbl.Rows.Add(root_row);
+                return root_row["ID"] as string;
+            }
+
+            DataRow GetRootRow(object id)
+            {
+                for(int i = 0; i <= 100; i++)     // 防止死循环
+                {
+                    DataRow dr = dtm.GetRow(id);
+                    if(dr == null) return null;
+                    id = dr["父节点ID"];
+                    if(Equals(id, GlobalData.rootID))
+                        return dr;
+                }
+                return null;
+            }
+
+            void SetChapter(object parentid, int level)
+            {
+                foreach(DataRow dr in dt.Rows)
+                {
+                    if(!Equals(dr["父节点ID"], parentid)) continue;
+
+                    DataRow drParent = dtm.GetRow(parentid);
+                    string s = dr["章节号"].ToString();
+                    if(drParent != null && level >= 2 && !s.Contains(".") && !s.Contains("_"))
+                    {   // 如果章节号有点或下划线则不拼装
+                        dr["章节号"] = drParent["章节号"] + "_" + s;
+                    }
+                    SetChapter(dr["ID"], level + 1);
+                }
+            }
+
+            void RearrangeDataTable(object parentid)
+            {
+                foreach(DataRow dr in dt.Rows)
+                {
+                    if(!Equals(dr["父节点ID"], parentid)) continue;
+                    dr["测试依据序号"] = requireindex++;
+                    RearrangeDataTable(dr["ID"]);
+                }
+            }
+        }
+
+        void btImportPreVersion_Click(object sender, EventArgs e)
+        {
+            DialogResult dr2 = MessageBox.Show("确认导入上版本的测试依据吗？\n导入的依据将附加在原有依据的后面，不会删除原来存在的数据。", "确认", MessageBoxButtons.YesNo);
+            if(dr2 == DialogResult.No) return;
+
+            OnPageClose(false);
+            object preVid = DBLayer1.GetPreVersion(dbProject, currentvid);
+            if(preVid == null) return;
+            DataTable dtPreTree = dbProject.ExecuteDataTable(sqlRequire, preVid);
+
+            // [oldkey, newkey]
+            Dictionary<object, object> map = new Dictionary<object, object>();
+
+            foreach(DataRow dr in dtPreTree.Rows)
+            {
+                dr.SetAdded();
+                dr["测试版本"] = currentvid;
+                object oldid = dr["ID"];
+                dr["ID"] = FunctionClass.NewGuid;
+                map[oldid] = dr["ID"];
+            }
+            foreach(DataRow dr in dtPreTree.Rows)
+            {
+                object parentid = dr["父节点ID"];
+                if(map.ContainsKey(parentid))
+                    dr["父节点ID"] = map[parentid];
+            }
+            dbProject.UpdateDatabase(dtPreTree, sqlRequire);
+            OnPageCreate();
+        }
+    }
+
+    /// <summary>
+    /// 测试依据类型
+    /// </summary>
+    public enum TestRequireType
+    {
+        /// <summary>
+        /// 需求依据
+        /// </summary>
+        Require = 1,
+
+        /// <summary>
+        /// 问题报告引起更动
+        /// </summary>
+        Fall = 2,
+
+        /// <summary>
+        /// 其他更动
+        /// </summary>
+        OtherChange = 3
+    }
+}

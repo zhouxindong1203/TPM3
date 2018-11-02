@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<界面设计 >
+  <!--目前使用的回归树-->
+  <TreeNode NodeName="项目管理" NodeClass="wx.WmfImageForm" Image="项目基本信息.gif" Icon="阶段" >
+    <TreeNode NodeName="项目基本信息" NodeClass="wx.ProjectBaseInfoForm" Icon="Word" />
+  </TreeNode>
+  <TreeNode NodeName="回归测试方案"  >
+    <TreeNode NodeName="被测软件概述" NodeClass="wx.Ole1Form" title="被测软件概述" content="被测软件概述" />
+    <TreeNode NodeName="测试任务概述" NodeClass="wx.Ole1Form" title="测试任务概述" content="测试任务概述" />
+    <TreeNode NodeName="软件更动说明" NodeClass="wx.RegressModifyInfo"/>
+    <TreeNode NodeName="影响域分析"   NodeClass="wx.InfluenceAnalysis"/>
+    <TreeNode NodeName="回归测试依据" NodeClass="wx.RequireTreeForm" title="回归测试依据" content="回归测试依据" />
+    <TreeNode NodeName="测试人员安排" NodeClass="wx.PersonForm" />
+    <TreeNode NodeName="测试环境"     NodeClass="wx.TestEnviForm" />
+    <TreeNode NodeName="测试进度计划" NodeClass="wx.TestPlanForm" />
+    <TreeNode NodeName="回归测试策略" NodeClass="wx.TestStrategyForm" />
+    <TreeNode NodeName="测试用例设计" NodeClass="zxd.TestTreeForm" type="design"  />
+    <TreeNode NodeName="测试文档信息" NodeClass="wx.SummaryForm" DocName="回归测试方案" title1="回归测试方案文档概述" title2="与其他文档的关系" />
+    <TreeNode NodeName="输出本阶段文档" NodeClass="chq.BatchOutput" step="回归测试方案"  />
+  </TreeNode>
+
+  <TreeNode NodeName="回归测试执行" NodeClass="wx.WmfImageForm"  Icon="阶段" Image="测试实施.gif" >
+    <TreeNode NodeName="回归测试记录" NodeClass="zxd.TestTreeForm" type="result"  />
+    <TreeNode NodeName="测试人员与时间" subform="wx.TestcaseSummeryInfoControl" NodeClass="wx.ObjectSubForm"  />
+    <TreeNode NodeName="问题报告单" NodeClass="zxd.pbl.PblRepsForm" title1="测试实施-问题报告单" />
+    <TreeNode NodeName="回归问题报告概述" NodeClass="wx.SummaryForm" DocName="回归问题报告" title1="回归问题报告文档概述" />
+    <TreeNode NodeName="输出本阶段文档" NodeClass="chq.BatchOutput" step="回归测试执行"  />
+  </TreeNode>
+
+  <TreeNode NodeName="回归测试总结" DocName="测试总结" NodeClass="wx.WmfImageForm"  Icon="阶段" Image="测试总结.gif"   >
+    <TreeNode NodeName="测试情况说明" NodeClass="wx.Ole1Form" DocName="回归测试报告" title="测试情况说明" content="测试情况说明"   />
+    <TreeNode NodeName="回归测试报告声明" NodeClass="wx.Ole1Form" title="回归测试报告声明" content="测试报告声明"   />
+    <TreeNode NodeName="测试结果概述" NodeClass="wx.TestResultForm"   />
+    <TreeNode NodeName="回归测试报告概述" NodeClass="wx.SummaryForm" DocName="回归测试报告" title1="回归测试报告文档概述" title2="与其他文档的关系" />
+    <TreeNode NodeName="输出回归测试文档" NodeClass="chq.BatchOutput" step="回归测试报告"  />
+  </TreeNode>
+
+  <界面设计2>
+    <!--修改前的回归树-->
+    <TreeNode NodeName="项目管理" NodeClass="wx.WmfImageForm" Image="项目基本信息.gif" Icon="阶段" >
+      <TreeNode NodeName="项目基本信息" NodeClass="wx.ProjectBaseInfoForm" Icon="Word" />
+      <TreeNode NodeName="问题标识结构定制" NodeClass="zxd.pbl.CustomPblSignForm"  />
+    </TreeNode>
+    <TreeNode NodeName="任务分配"  >
+      <TreeNode NodeName="前一次问题报告对应需求" NodeClass="wx.RegressFallRequireTraceForm" />
+      <TreeNode NodeName="前一次测试软件其它更动报告单" NodeClass="wx.SoftwareModifyForm" />
+    </TreeNode>
+    <TreeNode NodeName="测试策划" DocName="测试计划" NodeClass="wx.WmfImageForm"  Icon="阶段" Image="测试策划.gif"  >
+      <TreeNode NodeName="回归测试依据"  NodeClass="wx.RequireTreeForm" title="回归测试依据" content="回归测试依据"   />
+      <TreeNode NodeName="被测软件概述" NodeClass="wx.Ole1Form" title="被测软件概述" content="被测软件概述"   />
+      <TreeNode NodeName="测试任务概述" NodeClass="wx.Ole1Form" title="测试任务概述" content="测试任务概述"   />
+      <!--TreeNode NodeName="被测软件评价准则和方法" NodeClass="wx.Ole1Form" title="被测软件评价准则和方法" content="被测软件评价准则和方法" / -->
+      <TreeNode NodeName="测试项目的回归测试策略" NodeClass="wx.TestStrategyForm" />
+      <TreeNode NodeName="软件测试环境" NodeClass="wx.TestEnviForm"   />
+      <TreeNode NodeName="测试组织与人员" NodeClass="wx.PersonForm"   />
+      <TreeNode NodeName="测试进度计划" NodeClass="wx.TestPlanForm"   />
+    </TreeNode>
+    <TreeNode NodeName="测试总结" DocName="测试总结" Icon="" NodeClass="wx.WmfImageFormSelect" Image1="测试过程1.gif" Image2="测试过程2.gif" >
+      <TreeNode NodeName="设计测试用例及提交执行结果" NodeClass="zxd.TestTreeForm" type="result"  />
+      <TreeNode NodeName="问题报告单" NodeClass="zxd.pbl.PblRepsForm" title1="测试实施-问题报告单" />
+      <!--<TreeNode NodeName="应该重新执行的用例未执行的原因说明" NodeClass=" " title1="应该重新执行的用例未执行的原因说明" />-->
+      <TreeNode NodeName="测试结果概述" NodeClass="wx.TestResultForm"   />
+    </TreeNode>
+    <TreeNode NodeName="文档信息"  >
+      <TreeNode NodeName="测试情况说明" NodeClass="wx.Ole1Form" DocName="回归测试报告" title="测试情况说明" content="测试情况说明"   />
+      <TreeNode NodeName="回归测试报告声明" NodeClass="wx.Ole1Form" title="回归测试报告声明" content="测试报告声明"   />
+      <TreeNode NodeName="回归测试说明概述" NodeClass="wx.SummaryForm" DocName="回归测试说明" title1="回归测试说明文档概述"  />
+      <TreeNode NodeName="回归问题报告概述" NodeClass="wx.SummaryForm" DocName="回归问题报告" title1="回归问题报告文档概述" />
+      <TreeNode NodeName="回归测试方案概述" NodeClass="wx.SummaryForm" DocName="回归测试方案" title1="回归测试方案文档概述" title2="与其他文档的关系" />
+      <TreeNode NodeName="回归测试报告概述" NodeClass="wx.SummaryForm" DocName="回归测试报告" title1="回归测试报告文档概述" title2="与其他文档的关系" />
+      <TreeNode NodeName="输出回归测试文档" NodeClass="chq.BatchOutput" step="回归测试报告"  />
+    </TreeNode>
+  </界面设计2>
+
+</界面设计>

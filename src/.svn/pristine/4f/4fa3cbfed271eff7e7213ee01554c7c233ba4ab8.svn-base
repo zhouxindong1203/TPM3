@@ -1,0 +1,571 @@
+using System;
+using System.Data;
+using C1.Win.C1TrueDBGrid;
+using Common;
+using Common.TrueDBGrid;
+using TPM3.Sys;
+using Z1.tpm;
+using Z1.tpm.DB;
+using System.Windows.Forms;
+using TPM3.zxd.clu;
+using System.Drawing;
+
+namespace TPM3.zxd
+{
+    public partial class TestTypeForm : MyBaseForm
+    {
+        #region 窗体
+
+        TrueDBGridAssist gridAssist1;
+
+        public static ColumnPropList columnList2 = GridAssist.GetColumnPropList<TestTypeForm>(3); // 用于"测试项"
+
+        private DataTable _tbl;
+        public DataTable Tbl
+        {
+            get
+            {
+                return this._tbl;
+            }
+        }
+
+        private NodeTagInfo _taginfo;
+        private string _typeeid;
+        private TestTypeSub _subnodetype;
+        public TestTypeSub SubNodeType
+        {
+            get
+            {
+                return _subnodetype;
+            }
+        }
+
+        public string TypeName
+        {
+            set
+            {
+                this.txtbxTypeName.Text = value;
+
+                this.expandablePanel1.TitleText = "测试类型 [" + value + "]";
+                this.grid1.Caption = "测试子类型集 [" + value + "]";
+                this.grid2.Caption = "测试项集 [" + value + "]";
+
+                _datachanged = true;
+            }
+        }
+
+        public TestTypeForm()
+        {
+            InitializeComponent();
+        }
+
+        static TestTypeForm()
+        {
+            columnList2.Add("序号", 50);
+            columnList2.Add("测试项名称", 120);
+            columnList2.Add("简写码", 60);
+            columnList2.Add("测试项说明及测试要求", 160);
+            columnList2.Add("测试方法说明", 160, "测试策略与方法");
+            columnList2.Add("充分性要求", 160, "充分性要求");
+            columnList2.Add("追踪关系", 120);
+            columnList2.Add("评判标准", 120);
+            columnList2.Add("约束条件", 120);
+            columnList2.Add("终止条件", 120);
+            columnList2.Add("优先级", 60);
+
+            columnList2.AddValidator(new NotNullValidator("测试项名称"));
+            columnList2.AddValidator(new NotNullValidator("简写码"));
+        }
+
+        public override bool OnPageCreate()
+        {
+            // 检测此测试类型的子节点类型
+            _taginfo = tnForm.Tag as NodeTagInfo;
+            if(_taginfo == null)
+                throw (new InvalidOperationException("无法获取树节点附加信息!"));
+
+            _typeeid = TestType.GetEntityID(dbProject, _taginfo.id);
+            if(string.Empty.Equals(_typeeid))
+                throw (new InvalidOperationException("无法获取测试类型实体ID!"));
+
+            _subnodetype = TestType.GetSubType(dbProject, (string)pid, _typeeid);
+            if(_subnodetype == TestTypeSub.NonDefinition)
+                throw (new InvalidOperationException("测试类型的子节点类型未定义!"));
+
+            // 绑定列
+            if(_subnodetype == TestTypeSub.SubType)        // 子节点类型: 测试子类型
+            {
+                gridAssist1 = new TrueDBGridAssist(grid1, "ID", "序号");
+                gridAssist1.columnList = TestObjForm.columnList1;
+                this.grid2.Visible = false;
+
+                //"测试类型名称"输入编辑器
+                FrmCommonFunc.TestTypeEditor(gridAssist1, mapList_afterRowSelectEvent);
+            }
+            else if(_subnodetype == TestTypeSub.TestItem)  // 子节点类型: 测试项
+            {
+                gridAssist1 = new TrueDBGridAssist(grid2, "ID", "序号");
+                gridAssist1.columnList = columnList2;
+                this.grid1.Visible = false;
+
+                // "优先级"和"追踪关系"输入编辑器
+                FrmCommonFunc.PriorLevelEditor(gridAssist1);
+                FrmCommonFunc.TraceEditor(gridAssist1, currentvid);
+            }
+
+            gridAssist1.rowPosition.GetTreeNodeKeyEvent += FrmCommonFunc.GetTreeNodeKey;
+            gridAssist1.rowPosition.AfterRowMoveDown += RowMoveEventHandler;
+            gridAssist1.rowPosition.AfterRowMoveUp += RowMoveEventHandler;
+            gridAssist1.rowPosition.BeforeRowMoveDown += BeforeRowMove;
+            gridAssist1.rowPosition.BeforeRowMoveUp += BeforeRowMove;
+
+            // 数据绑定
+            if(_subnodetype == TestTypeSub.SubType)
+            {
+                this._tbl = TestType.GetTypesFromType(dbProject, (string)pid, (string)currentvid, _typeeid);
+                if(this._tbl == null)
+                    return false;
+
+                gridAssist1.DataSource = this._tbl;
+
+                // 列"子节点类型"的ComboBox输入及显示文本与对应值的设置
+                ValueItems items = grid1.Columns["子节点类型"].ValueItems;
+                FrmCommonFunc.TransSubnodeType(items);
+
+                // "子节点类型"禁止用户输入
+                C1DataColumn col = this.grid1.Columns["子节点类型"];
+                this.grid1.Splits[0].DisplayColumns[col].DropDownList = true;
+            }
+            else if(_subnodetype == TestTypeSub.TestItem)
+            {
+                this._tbl = TestItem.GetItemsFromType(dbProject, (string)pid, (string)currentvid, _typeeid);
+                if(this._tbl == null)
+                    return false;
+
+                gridAssist1.DataSource = this._tbl;
+
+                // 测试项的复制/粘贴
+                gridAssist1.gridClipboard.CopyEvent += grid_CopyEvent;
+                gridAssist1.gridClipboard.PasteEvent += grid_PasteEvent;
+            }
+
+            gridAssist1.rowPosition.tnc = tnForm.Nodes;
+            gridAssist1.OnPageCreate();
+
+            this.grid1.AllowRowSizing = (RowSizingEnum)us.rowSizeingList[1];
+            this.grid2.AllowRowSizing = (RowSizingEnum)us.rowSizeingList[2];
+
+            this.cmbSubNodeType.Enabled = false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// 用户选择 测试类型名称 完毕,更新简写码
+        /// </summary>
+        void mapList_afterRowSelectEvent(ColumnRefMap cm, object key)
+        {
+            FrmCommonFunc.AfterChangeTestType(cm.dt, this.grid1, tnForm, key);
+        }
+
+        bool BeforeRowMove(DataRow drCur, DataRow drPre)
+        {
+            C1TrueDBGrid grid = null;
+            if(_subnodetype == TestTypeSub.SubType)
+                grid = this.grid1;
+            else if(_subnodetype == TestTypeSub.TestItem)
+                grid = this.grid2;
+
+            if(grid == null)
+                return false;
+
+            return FrmCommonFunc.BeforeRowMove(grid, drCur, drPre);
+        }
+
+        bool RowMoveEventHandler(DataRow drCur, DataRow drPre)
+        {
+            //交换测试类型树节点的order以及更新其章节号
+            return FrmCommonFunc.AfterRowMove(tnForm, drCur, drPre);
+        }
+
+        void grid_CopyEvent(object sender, EventArgs e)
+        {
+            // 复制"测试项"
+            //CommonTestData ctd = _nodeCur.Tag as CommonTestData;
+            //if (ctd == null)
+            //    return;
+            //if (ctd.NodeType != NodeType.TestItem)
+            //    return;
+
+            //GlobalTempData.tnSrc = _nodeCur;
+
+            //CommonTestData.CopyTestItemToClipboard(ctd.ID);
+            //_nodeforcopy = _nodeCur;
+        }
+
+        void grid_PasteEvent(object sender, EventArgs e)
+        {
+            //MessageBox.Show("Paste!!");
+        }
+
+        private bool _datachanged = false;
+        // 获取"被测对象"相关信息
+        private void LoadData()
+        {
+            DataRow row = TestType.GetTestTypeInfo(dbProject, _taginfo.id);
+            if(row == null)
+                return;
+
+            this.txtbxTypeName.Text = row["测试类型名称"].Equals(DBNull.Value) ? string.Empty : (string)row["测试类型名称"];
+            this.cmbSubNodeType.SelectedIndex = (int)row["子节点类型"] - 1;
+            this.txtbxAbbr.Text = row["简写码"].Equals(DBNull.Value) ? string.Empty : (string)row["简写码"];
+            this.txtbxWorkTime.Text = row["预计工作时间"].ToString();
+            if(!DBNull.Value.Equals(row["总体要求"]))
+                this.rich1.SetRichData((byte[])row["总体要求"]);
+
+            this._datachanged = false;
+
+            this.expandablePanel1.TitleText = "测试类型 [" + this.txtbxTypeName.Text + "]";
+            this.grid1.Caption = "测试子类型集 [" + this.txtbxTypeName.Text + "]";
+            this.grid2.Caption = "测试项集 [" + this.txtbxTypeName.Text + "]";
+        }
+
+        private void TestTypeForm_Load(object sender, EventArgs e)
+        {
+            foreach(string s in ConstDef.subtype)
+                this.cmbSubNodeType.Items.Add(s);
+
+            FrmCommonFunc.UniformGrid(this.grid1);
+            FrmCommonFunc.UniformGrid(this.grid2, 36);
+
+            LoadData();
+
+            if(_subnodetype == TestTypeSub.TestItem)
+            {
+                // 层数检测
+                int level = BusiLogic.GetTestTypeLevel(tnForm);
+                if(level >= (ConstDef.MaxLevel - 1))
+                {
+                    this.cmbSubNodeType.Enabled = false;
+                }
+
+                this.grid2.MarqueeStyle = MarqueeEnum.SolidCellBorder;
+
+                this.grid2.Splits[0].DisplayColumns["测试项说明及测试要求"].Button = true;
+                this.grid2.Splits[0].DisplayColumns["测试方法说明"].Button = true;
+                this.grid2.Splits[0].DisplayColumns["终止条件"].Button = true;
+                this.grid2.Splits[0].DisplayColumns["充分性要求"].Button = true;
+
+                this.grid2.EditDropDown = true;
+            }
+
+            SetInfoEditable();
+        }
+
+        private void SetInfoEditable()
+        {
+            LeftTreeUserControl ltuc = FrmCommonFunc.GetParentFrm(this);
+            if ((ltuc != null) && (ltuc is TestTreeForm))
+            {
+                if ((ltuc as TestTreeForm).IsRegressExec)   // 回归测试执行阶段
+                {
+                    NodeTagInfo tag = tnForm.Tag as NodeTagInfo;
+                    if (tag != null)
+                    {
+                        if (tag.IsRegressCreate)            // 继承而来
+                        {
+                            this.txtbxTypeName.ReadOnly = true;
+                            this.txtbxAbbr.ReadOnly = true;
+                            this.rich1.ReadOnly = true;
+                            this.cmbSubNodeType.Enabled = true;
+
+                            this.txtbxTypeName.BackColor = Color.WhiteSmoke;
+                            this.txtbxAbbr.BackColor = Color.WhiteSmoke;
+                            this.rich1.BackColor = Color.WhiteSmoke;
+                            this.cmbSubNodeType.BackColor = Color.WhiteSmoke;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void grid2_ButtonClick(object sender, ColEventArgs e)
+        {
+            this.grid2.EditActive = true;
+        }
+
+        public override bool OnPageClose(bool bClose)
+        {
+            SaveData();
+            gridAssist1.OnPageClose();
+
+            return SaveToDB();
+        }
+
+        public bool SaveToDB()
+        {
+            if(_subnodetype == TestTypeSub.SubType)
+            {
+                // 保存grid1至数据库
+                this.grid1.UpdateData();
+                if(!TestType.UpdateType(dbProject, (string)pid, (string)currentvid, this._tbl))
+                    return false;
+                else
+                    return true;
+
+            }
+            else if(_subnodetype == TestTypeSub.TestItem)
+            {
+                // 保存grid2至数据库
+                this.grid2.UpdateData();
+                if(!TestItem.UpdateItem(dbProject, (string)pid, (string)currentvid, this._tbl))
+                    return false;
+                else
+                    return true;
+            }
+            else
+                return true;
+        }
+
+        // 保存"测试类型"信息
+        private void SaveData()
+        {
+            if(_datachanged)
+            {
+                TestType.UpdateTypeInfo(dbProject, _typeeid, this.txtbxTypeName.Text, this.txtbxAbbr.Text,
+                    this.cmbSubNodeType.SelectedIndex + 1, this.rich1.GetRichData());
+            }
+        }
+
+        #endregion 窗体
+
+        #region grid1
+
+        private void txtbxTypeName_TextChanged(object sender, EventArgs e)
+        {
+            this._datachanged = true;
+        }
+
+        private void grid1_OnAddNew(object sender, EventArgs e)
+        {
+            object id = FunctionClass.NewGuid;
+            object entityid = FunctionClass.NewGuid;
+
+            this.grid1.Columns["ID"].Value = id;
+            this.grid1.Columns["实体ID"].Value = entityid;
+            this.grid1.Columns["测试类型ID"].Value = entityid;
+            this.grid1.Columns["项目ID"].Value = pid;
+            this.grid1.Columns["测试版本"].Value = currentvid;
+
+            this.grid1.Columns["父测试类型ID"].Value = _typeeid;
+            this.grid1.Columns["所属被测对象ID"].Value = DBNull.Value;
+            this.grid1.Columns["创建版本ID"].Value = currentvid;
+
+            if(BusiLogic.GetTestTypeLevel(tnForm) >= (ConstDef.MaxLevel - 1))
+            {
+                this.grid1.Columns["子节点类型"].Value = 2;
+                this.grid1.Splits[0].DisplayColumns["子节点类型"].Locked = true;
+            }
+            else
+            {
+                this.grid1.Columns["子节点类型"].Value = 1;
+            }
+        }
+
+        private void grid1_AfterColUpdate(object sender, ColEventArgs e)
+        {
+            string col = e.Column.Name;
+            if(col.Equals("测试类型名称"))
+                FrmCommonFunc.GridAfterColUpdate(this.grid1, "ID", "测试类型名称", string.Empty, tnForm);
+            else if(col.Equals("简写码"))
+                FrmCommonFunc.GridAfterColUpdate(this.grid1, "ID", string.Empty, "简写码", tnForm);
+        }
+
+        private string _deltypeeid = null;
+        private string _deltypetid = null;
+        private void grid1_BeforeDelete(object sender, C1.Win.C1TrueDBGrid.CancelEventArgs e)
+        {
+            if(this.grid1.AddNewMode != AddNewModeEnum.NoAddNew) // 删除新增记录
+                return;
+
+            LeftTreeUserControl ltuc = FrmCommonFunc.GetParentFrm(this);
+            if ((ltuc != null) && (ltuc is TestTreeForm))
+            {
+                if ((ltuc as TestTreeForm).IsRegressExec)
+                {
+                    TreeNode node = FrmCommonFunc.GetTreeNode(tnForm, (string)grid1.Columns["ID"].Value);
+                    if (node != null)
+                        if (node.Nodes.Count != 0)
+                        {
+                            MessageBox.Show("此测试类型下非空!!删除前请先删除其所属子节点!!", "操作失败", MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
+                            e.Cancel = true;
+                            return;
+                        }
+                }
+            }
+
+            FrmCommonFunc.ProcBeforeDelete proc = new FrmCommonFunc.ProcBeforeDelete(SaveToDB);
+
+            bool ret = FrmCommonFunc.OnBeforeDelete_TestType(this.grid1, proc, ref _deltypeeid, ref _deltypetid);
+            if(ret)
+                e.Cancel = true;
+        }
+
+        private void grid1_AfterDelete(object sender, EventArgs e)
+        {
+            /* 直接删除正在添加的新记录并不会触发本事件 */
+
+            FrmCommonFunc.OnAfterDelete_TestType(this.grid1, tnForm, _deltypetid, _deltypeeid, this._tbl);
+        }
+
+        private void grid1_AfterInsert(object sender, EventArgs e)
+        {
+            // 向树中添加新节点
+            FrmCommonFunc.OnAfterInsert_TestType(this._tbl, tnForm);
+        }
+
+        private void grid1_ComboSelect(object sender, ColEventArgs e)
+        {
+            if(this.grid1.AddNewMode != AddNewModeEnum.NoAddNew)
+                return;
+
+            // 只有在测试类型无子节点时才允许修改"子节点类型"
+            FrmCommonFunc.BeforeChangeSubtype(this.grid1, tnForm);
+        }
+
+        #endregion grid1
+
+        #region grid2
+
+        private void grid2_OnAddNew(object sender, EventArgs e)
+        {
+            object id = FunctionClass.NewGuid;
+            object entityid = FunctionClass.NewGuid;
+
+            this.grid2.Columns["ID"].Value = id;
+            this.grid2.Columns["实体ID"].Value = entityid;
+            this.grid2.Columns["测试项ID"].Value = entityid;
+            this.grid2.Columns["项目ID"].Value = pid;
+            this.grid2.Columns["测试版本"].Value = currentvid;
+            this.grid2.Columns["序号"].Value = Tbl.Rows.Count + 1;
+
+            this.grid2.Columns["所属测试类型ID"].Value = _typeeid;
+            this.grid2.Columns["父节点ID"].Value = DBNull.Value;
+
+            this.grid2.Columns["终止条件"].Value = "满足测试要求或测试过程无法正常进行";
+            this.grid2.Columns["创建版本ID"].Value = currentvid;
+        }
+
+        private void grid2_AfterColUpdate(object sender, ColEventArgs e)
+        {
+            string col = e.Column.Name;
+            if(col.Equals("测试项名称"))
+                FrmCommonFunc.GridAfterColUpdate(this.grid2, "ID", "测试项名称", string.Empty, tnForm);
+            else if(col.Equals("简写码"))
+                FrmCommonFunc.GridAfterColUpdate(this.grid2, "ID", string.Empty, "简写码", tnForm);
+        }
+
+        private string _delitemeid = null;
+        private string _delitemtid = null;
+        private void grid2_BeforeDelete(object sender, C1.Win.C1TrueDBGrid.CancelEventArgs e)
+        {
+            if(this.grid2.AddNewMode != AddNewModeEnum.NoAddNew) // 删除新增记录
+                return;
+
+            if (!SaveToDB())
+            {
+                e.Cancel = true;
+                return;
+            }
+
+            LeftTreeUserControl ltuc = FrmCommonFunc.GetParentFrm(this);
+            if ((ltuc != null) && (ltuc is TestTreeForm))
+            {
+                if ((ltuc as TestTreeForm).IsRegressExec)
+                {
+                    string itemeid = this.grid2.Columns["实体ID"].Value as string;
+                    if (!TestItem.IsSameVer(dbProject, itemeid, currentvid as string))
+                    {
+                        InputText input = new InputText();
+                        if (input.ShowDialog() == DialogResult.OK)
+                        {
+                            object trace = TestItem.GetItemTrace(dbProject, this.grid2.Columns["ID"].Value as string);
+                            string objtid = FrmCommonFunc.GetBelongObjID(tnForm);
+                            Regress.InsertUntest(dbProject, pid, itemeid, 2, input.InputReason, trace, currentvid, objtid);
+
+                            FrmCommonFunc.OnBeforeDelete_TestItem(this.grid2, null, ref _delitemeid, ref _delitemtid, false);
+                        }
+                        else
+                        {
+                            e.Cancel = true;
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        if (FrmCommonFunc.OnBeforeDelete_TestItem(this.grid2, null, ref _delitemeid, ref _delitemtid, true))
+                        {
+                            e.Cancel = true;
+                            return;
+                        }
+                    }
+                }
+                else
+                {
+                    if (FrmCommonFunc.OnBeforeDelete_TestItem(this.grid2, null, ref _delitemeid, ref _delitemtid, true))
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+                }
+            }
+        }
+
+        private void grid2_AfterDelete(object sender, EventArgs e)
+        {
+            /* 直接删除正在添加的新记录并不会触发本事件 */
+            FrmCommonFunc.OnAfterDelete_TestItem(this.grid2, tnForm, _delitemtid, _delitemeid, this._tbl);
+        }
+
+        private void grid2_AfterInsert(object sender, EventArgs e)
+        {
+            FrmCommonFunc.OnAfterInsert_TestItem(this._tbl, tnForm);
+        }
+
+        #endregion grid2
+
+        #region typeinfo
+
+        private void txtbxTypeName_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            string input = this.txtbxTypeName.Text;
+
+            //更新树中被测对象名称
+            NodeTagInfo taginfo = tnForm.Tag as NodeTagInfo;
+            if(taginfo == null)
+                return;
+
+            taginfo.text = input;
+            tnForm.Text = UIFunc.GenSections(tnForm.Parent, taginfo.order, ConstDef.SectionSep) +
+                taginfo.text;
+
+            this.expandablePanel1.TitleText = "测试类型 [" + input + "]";
+            this.grid1.Caption = "测试子类型集 [" + input + "]";
+            this.grid2.Caption = "测试项集 [" + input + "]";
+        }
+
+        private void txtbxAbbr_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            string input = this.txtbxAbbr.Text;
+
+            NodeTagInfo taginfo = tnForm.Tag as NodeTagInfo;
+            if(taginfo == null)
+                return;
+
+            taginfo.keySign = input;
+        }
+
+        #endregion typeinfo
+    }
+}

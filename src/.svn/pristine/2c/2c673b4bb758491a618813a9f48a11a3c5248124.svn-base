@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<界面设计 >
+  <!--初始版本功能树-->
+  <TreeNode NodeName="定制项目信息" NodeClass="wx.WmfImageForm" Image="项目基本信息.gif" Icon="阶段" >
+    <TreeNode NodeName="项目基本信息" NodeClass="wx.ProjectBaseInfoForm" Icon="Word" />
+    <TreeNode NodeName="定制测试类型" NodeClass="wx.TestClassTemplateList" Icon="Word"/>
+    <TreeNode NodeName="测试用例设计方法" NodeClass="wx.TestMethodForm" />
+    <TreeNode NodeName="问题类别和级别定制" NodeClass="wx.FallTypeForm" />
+    <TreeNode NodeName="定制测试项的优先级" NodeClass="wx.TestPriorityForm"  />
+    <TreeNode NodeName="问题标识结构定制" NodeClass="zxd.pbl.CustomPblSignForm"  />
+  </TreeNode>
+  <TreeNode NodeName="测试过程"  Icon="阶段" NodeClass="wx.WmfImageFormSelect" Image1="测试过程1.gif" Image2="测试过程2.gif" >
+    <TreeNode NodeName="定型大纲" DocName="测试计划" NodeClass="wx.WmfImageForm"  Icon="阶段" Image="测试策划.gif"  >
+      <TreeNode NodeName="文档有效性声明" NodeClass="wx.Ole1Form" content="文档有效性声明"   />
+      <TreeNode NodeName="文档概述" NodeClass="wx.SummaryForm" title1="测试计划文档概述" title2="与其他计划的关系"   />
+      <TreeNode NodeName="被测软件概述" NodeClass="wx.Ole1Form" content="被测软件概述"  step="2"   />
+      <TreeNode NodeName="测试任务概述" NodeClass="wx.Ole1Form" content="测试任务概述"   />
+      <TreeNode NodeName="梳理测试依据" NodeClass="wx.RequireTreeForm" />
+      <TreeNode NodeName="测试总体要求" NodeClass="wx.Ole1Form" content="测试总体要求"  />
+      <TreeNode NodeName="测试项目的测试策略" NodeClass="wx.TestStrategyForm"  />
+      <TreeNode NodeName="测试环境" NodeClass="wx.TestEnviForm2"   />
+      <TreeNode NodeName="测试人员安排" NodeClass="wx.PersonForm" />
+      <TreeNode NodeName="测试进度计划" NodeClass="wx.TestPlanForm"   />
+      <TreeNode NodeName="测试定义" NodeClass="zxd.TestTreeForm" type="plan"   />
+      <TreeNode NodeName="测评结束条件" NodeClass="wx.Ole1Form" content="项目终止条件"  />
+      <TreeNode NodeName="软件质量评价内容和方法" NodeClass="wx.Ole1Form" content="被测软件评价准则和方法" />
+      <TreeNode NodeName="定型测评通过准则" NodeClass="wx.Ole1Form" content="定型测评通过准则" />
+      <TreeNode NodeName="测评分包" NodeClass="wx.Ole1Form" content="测评分包"   />
+      <TreeNode NodeName="安全保密与知识产权保护" NodeClass="wx.Ole1Form" content="安全保密与知识产权保护"   />
+      <!--<TreeNode NodeName="测评风险分析" NodeClass="wx.Ole1Form" content="测评风险分析"   />-->
+      <TreeNode NodeName="配置管理活动" NodeClass="wx.Ole1Form" content="配置管理活动" />
+      <TreeNode NodeName="质量保证活动" NodeClass="wx.DX_QAActiveForm" />
+      <TreeNode NodeName="输出测试文档" NodeClass="chq.BatchOutput" step="测试计划"  />
+    </TreeNode>
+    <TreeNode NodeName="测试设计" DocName="测试说明" NodeClass="wx.WmfImageForm"  Icon="阶段" Image="测试设计.gif"  >
+      <TreeNode NodeName="概述" NodeClass="wx.SummaryForm" title1="测试说明文档概述"   />
+      <TreeNode NodeName="正式合格性测试准备" subform="wx.TestPrepareForm" NodeClass="wx.ObjectSubForm" AddRoot="false" QueryType="Object" />
+      <TreeNode NodeName="设计测试用例" NodeClass="zxd.TestTreeForm" type="design"  />
+      <TreeNode NodeName="输出测试文档" NodeClass="chq.BatchOutput" step="测试设计"  />
+    </TreeNode>
+    <TreeNode NodeName="测试实施" DocName="测试记录" NodeClass="wx.WmfImageForm"  Icon="阶段" Image="测试实施.gif"  >
+      <TreeNode NodeName="提交测试用例执行结果" NodeClass="zxd.TestTreeForm" type="result" />
+      <TreeNode NodeName="未完整执行测试用例" subform="wx.UnExecCase" NodeClass="wx.ObjectSubForm"  />
+      <TreeNode NodeName="测试人员与时间" subform="wx.TestcaseSummeryInfoControl" NodeClass="wx.ObjectSubForm"  />
+      <TreeNode NodeName="问题报告单" NodeClass="zxd.pbl.PblRepsForm" title1="测试实施-问题报告单" />
+      <TreeNode NodeName="输出测试文档" NodeClass="chq.BatchOutput" step="测试实施"  />
+    </TreeNode>
+    <TreeNode NodeName="定型测评报告" DocName="测试总结" NodeClass="wx.WmfImageForm"  Icon="阶段" Image="测试总结.gif"   >
+      <TreeNode NodeName="文档有效性声明" NodeClass="wx.Ole1Form"  content="测试报告声明"   />
+      <TreeNode NodeName="定型测评报告概述" NodeClass="wx.SummaryForm" title1="测试报告文档概述"   />
+      <TreeNode NodeName="问题报告文档概述" NodeClass="wx.SummaryForm" title1="问题报告文档概述"   DocName="问题报告" />
+      <TreeNode NodeName="测评过程概述" NodeClass="wx.DX_TestSummaryForm"   />
+      <TreeNode NodeName="测试结果概述" NodeClass="wx.TestResultForm"   />
+      <TreeNode NodeName="问题报告单" NodeClass="zxd.pbl.PblRepsForm" title1="测试总结-问题报告单" />
+      <TreeNode NodeName="输出测试文档" NodeClass="chq.BatchOutput" step="测试总结"  />
+    </TreeNode>
+  </TreeNode>
+</界面设计>

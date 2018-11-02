@@ -1,0 +1,63 @@
+﻿using System;
+using System.Windows.Forms;
+using Common;
+using Common.RichTextBox;
+using Common.Dog;
+using Common.Aspose;
+using TPM3.wx;
+using Application = System.Windows.Forms.Application;
+
+namespace TPM3.Sys
+{
+    static class Program
+    {
+        [STAThread]
+        static void Main()
+        {
+            try
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+
+                OnInitialize();
+                Application.Run(new LoginForm());
+                OnClose();
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        static void OnInitialize()
+        {
+            FunctionClass.IgnoreRevocationCheck();
+            RichTextBoxOle.onlyWord = true;
+            RichTextBoxOle.convertTxt2Word = true;
+            CodeAssist.guidType = GuidType.Compact14;
+            MyProjectInfo.OnInit();
+
+            KeyList.KeySep = ',';
+            // 初始化 GlobalData
+            GlobalData.globalData.OnInit();
+
+            TypeNameRegister.RegisterAllTypeByAttr(null);   // "class.config"
+
+            FlexGridAssist.FlexGridStyle = @"Normal{BackColor:White;ForeColor:Black;Border:Flat,1,ControlDark,Both;}	Alternate{BackColor:LightCyan;}	Fixed{BackColor:Control;ForeColor:WindowText;TextAlign:CenterCenter;}   Highlight{BackColor:PaleGreen;ForeColor:Black;}    	   Focus{BackColor:PaleGreen;ForeColor:Black;}     Search{BackColor:Highlight;ForeColor:HighlightText;}	Frozen{BackColor:Beige;}	EmptyArea{BackColor:192, 192, 255;Border:Flat,1,ControlDarkDark,Both;}	GrandTotal{BackColor:Black;ForeColor:White;}	Subtotal0{BackColor:ControlDarkDark;ForeColor:White;}	Subtotal1{BackColor:ControlDarkDark;ForeColor:White;}	Subtotal2{BackColor:ControlDarkDark;ForeColor:White;}	Subtotal3{BackColor:ControlDarkDark;ForeColor:White;}	Subtotal4{BackColor:ControlDarkDark;ForeColor:White;}	Subtotal5{BackColor:ControlDarkDark;ForeColor:White;}	";
+            FlexGridAssist.defaultFontSize = 0;
+
+            DBAccessLog.OnInit();
+            AsposeCommon.Dummy();
+
+            CheckDog.UseBKDog = false;
+            CheckDog.Inst.OnCreate(1, "TP1");
+        }
+
+        private static void OnClose()
+        {
+            // 保存配置信息
+            GlobalData.globalData.OnClose();
+            CheckDog.Inst.OnClose();
+        }
+    }
+}

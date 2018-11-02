@@ -1,0 +1,157 @@
+﻿using System.Data;
+using C1.Win.C1FlexGrid;
+using Common;
+using TPM3.Sys;
+
+namespace TPM3.wx
+{
+    /// <summary>
+    /// 影响域分析
+    /// 使用[相关测试依据]列保存上一版本的关联测试项
+    /// </summary>
+    [TypeNameMap("wx.InfluenceAnalysis")]
+    public partial class InfluenceAnalysis : MyBaseForm
+    {
+        public static ColumnPropList columnList1 = FlexGridAssist.GetColumnPropList<InfluenceAnalysis>(11);
+        public static ColumnPropList columnList2 = FlexGridAssist.GetColumnPropList<InfluenceAnalysis>(23);
+        static string sqlTable = "select * from [HG软件更动表] where 测试版本 = ? and 是否更动= ? order by 更动类型, 序号";
+        FlexGridAssist flexAssist;
+        DataTable dtTable;
+
+        public InfluenceAnalysis()
+        {
+            InitializeComponent();
+            FlexGridAssist.SetFlexGridWithFocus(flex1);
+            flex1.AllowDragging = AllowDraggingEnum.Columns;
+            flex1.Styles.Normal.WordWrap = true;
+
+            flexAssist = new FlexGridAssist(flex1) { doubleClickEdit = true, deleteClear = true, columnList = columnList1 };
+            flexAssist.AddOleColumn("影响域分析");
+            flexAssist._flexOle.DefaultSize = 40;
+
+            ColumnRefMap cm = flexAssist.refrenceColumnMapList.AddColumnMap("相关测试依据", "ID", "名称");
+            cm.columnList = columnList2;
+            cm.flexParentCol = "父节点ID";
+            cm._rootParentID = GlobalData.rootID;
+            cm.multiSelect = true;
+            cm.seperator = "\r\n";
+            cm.DataSource = GetDropDownSelectDataSource();
+            cm.canRowSelectEvent += CanRowSelectEvent;
+        }
+
+        static InfluenceAnalysis()
+        {
+            columnList1.Add("更动类型", 100, false);
+            columnList1.Add("更动标识", 150, false);
+            columnList1.Add("影响域分析", 330);
+            columnList1.Add("测试要求", 200);
+            columnList1.Add("相关测试依据", 200, "上一版测试条目");
+
+            columnList2.Add("名称", 300);
+            columnList2.Add("简写码", 100);
+        }
+
+        public override bool OnPageCreate()
+        {
+            dtTable = dbProject.ExecuteDataTable(sqlTable, currentvid, true);
+            flexAssist.DataSource = dtTable;
+            flexAssist.OnPageCreate();
+
+            FlexGridAssist.AutoSizeRows(flex1, 2);
+            flex1.Rows[0].Height = 30;
+            return true;
+        }
+
+        public override bool OnPageClose(bool bClose)
+        {
+            flexAssist.OnPageClose();
+            dbProject.UpdateDatabase(dtTable, sqlTable);
+
+            return true;
+        }
+
+        bool CanRowSelectEvent(Row r)
+        {
+            return (int)r["类型"] == 3;
+        }
+
+        /// <summary>
+        /// 返回下拉框的数据源
+        /// 类型: 1 对象。 2类型 3测试项
+        /// </summary>
+        DataTable GetDropDownSelectDataSource()
+        {
+            DataTable dt = new DataTable();
+            GridAssist.AddMemoColumn(dt, "ID", "父节点ID", "名称", "简写码");
+            GridAssist.AddColumn<int>(dt, "类型", "序号");
+            object previd = DBLayer1.GetPreVersion(dbProject, currentvid);
+
+            string sqlObject = "SELECT e.ID, e.被测对象名称, e.简写码, r.序号 FROM CA被测对象实体表 AS e INNER JOIN CA被测对象实测表 AS r ON e.ID = r.被测对象ID  WHERE r.测试版本 = ? ";
+            DataTable dtObject = dbProject.ExecuteDataTable(sqlObject, previd);
+
+            string sqlClass = "SELECT e.ID, e.测试类型名称, e.简写码, e.所属被测对象ID, e.父测试类型ID, r.序号 FROM CA测试类型实体表 AS e INNER JOIN CA测试类型实测表 AS r ON e.ID = r.测试类型ID WHERE r.测试版本=?";
+            DataTable dtClass = dbProject.ExecuteDataTable(sqlClass, previd);
+
+            string sqlItem = "SELECT e.ID, e.测试项名称, e.简写码, e.所属测试类型ID, e.父节点ID, r.序号 FROM CA测试项实体表 AS e INNER JOIN CA测试项实测表 AS r ON e.ID = r.测试项ID WHERE r.测试版本=?";
+            DataTable dtItem = dbProject.ExecuteDataTable(sqlItem, previd);
+
+            foreach(DataRow drObject in dtObject.Rows)
+            {
+                DataRow dr = dt.NewRow();
+                dr["ID"] = drObject["ID"];
+                dr["父节点ID"] = GlobalData.rootID;
+                dr["名称"] = drObject["被测对象名称"];
+                dr["简写码"] = drObject["简写码"];
+                dr["类型"] = 1;
+                dr["序号"] = drObject["序号"];
+                dt.Rows.Add(dr);
+                AddClass(drObject["ID"], dt, dtClass, dtItem);
+            }
+            return dt;
+        }
+
+        void AddClass(object parentid, DataTable dtRet, DataTable dtClass, DataTable dtItem)
+        {
+            foreach(DataRow drClass in dtClass.Rows)
+            {
+                if(!Equals(drClass["所属被测对象ID"], parentid) && !Equals(drClass["父测试类型ID"], parentid)) continue;
+                DataRow dr = dtRet.NewRow();
+                dr["ID"] = drClass["ID"];
+                dr["父节点ID"] = parentid;
+                dr["名称"] = drClass["测试类型名称"];
+                dr["简写码"] = drClass["简写码"];
+                dr["类型"] = 2;
+                dr["序号"] = drClass["序号"];
+                dtRet.Rows.Add(dr);
+                AddClass(drClass["ID"], dtRet, dtClass, dtItem);
+                AddItem(drClass["ID"], dtRet, dtItem);
+            }
+        }
+
+        void AddItem(object parentid, DataTable dtRet, DataTable dtItem)
+        {
+            foreach(DataRow drItem in dtItem.Rows)
+            {
+                if(!Equals(drItem["所属测试类型ID"], parentid) && !Equals(drItem["父节点ID"], parentid)) continue;
+                DataRow dr = dtRet.NewRow();
+                dr["ID"] = drItem["ID"];
+                dr["父节点ID"] = parentid;
+                dr["名称"] = drItem["测试项名称"];
+                dr["简写码"] = drItem["简写码"];
+                dr["类型"] = 3;
+                dr["序号"] = drItem["序号"];
+                dtRet.Rows.Add(dr);
+                AddItem(drItem["ID"], dtRet, dtItem);
+            }
+        }
+
+        void flex1_BeforeEdit(object sender, RowColEventArgs e)
+        {
+            if(e.Row < flex1.Rows.Fixed || e.Col < flex1.Cols.Fixed) return;
+            Row r = flex1.Rows[e.Row];
+            string colName = flex1.Cols[e.Col].Name;
+            if(colName == "相关测试依据" && Equals(r["更动类型"], "纠错性更动"))
+                e.Cancel = true;
+        }
+    }
+}

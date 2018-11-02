@@ -1,0 +1,157 @@
+using System.Collections.Generic;
+using System.Xml.Serialization;
+using C1.Win.C1TrueDBGrid;
+using Common;
+
+namespace TPM3.Sys
+{
+    /// <summary>
+    /// 用户配置信息
+    /// </summary>
+    [XmlType(TypeName = "us")]
+    public class UserSetting
+    {
+        private UserSetting()
+        {
+            rowSizeingList = new int[10];
+            for(int i = 0; i < rowSizeingList.Length; i++)
+                rowSizeingList[i] = (int)RowSizingEnum.IndividualRows;
+        }
+
+        private static UserSetting _default = new UserSetting();
+
+        public static UserSetting Default
+        {
+            get { return _default; }
+            set
+            {
+                if(value != null && value.Version == CurrentVersion)
+                    _default = value;
+            }
+        }
+
+        public const int CurrentVersion = 8;
+
+        /// <summary>
+        /// 配置文件版本号
+        /// </summary>
+        [XmlElement(ElementName = "ver")]
+        public int Version = CurrentVersion;
+
+        /// <summary>
+        /// 最后一次登录的用户的ID
+        /// </summary>
+        [XmlElement(ElementName = "lu")]
+        public object lastUserId = null;
+
+        /// <summary>
+        /// 最后一次选取的项目
+        /// </summary>
+        [XmlElement(ElementName = "lp")]
+        public object lastProjectID = null;
+
+
+        /// <summary>
+        /// 最后一次在项目中打开的版本ID
+        /// 如果没有匹配的版本，则自动打开最后的一个版本
+        /// </summary>
+        [XmlElement(ElementName = "lv")]
+        public object lastVersionID = null;
+
+
+        /// <summary>
+        /// 是否自动打开最后的数据库
+        /// </summary>
+        [XmlElement(ElementName = "ao")]
+        public bool AutoOpenLastDatabase = true;
+
+        /// <summary>
+        /// 最后打开的数据库名
+        /// </summary>
+        [XmlElement(ElementName = "ld")]
+        public string LastDatabaseName = null;
+
+        /// <summary>
+        /// 是否使用外部的XML文件
+        /// </summary>
+        [XmlElement(ElementName = "uox")]
+        public bool UseOuterXmlfile = false;
+
+        /// <summary>
+        /// 外部XML文件名
+        /// </summary>
+        [XmlElement(ElementName = "oxf")]
+        public string OuterXmlfileName = null;
+
+        /// <summary>
+        /// 用户界面风格
+        /// </summary>
+        [XmlElement(ElementName = "fs")]
+        public string FlexStyle = "默认";
+
+        /// <summary>
+        /// flex列属性
+        /// </summary>
+        [XmlElement(ElementName = "fg")]
+        public List<ColumnPropList> FlexGridColumnProps;
+
+        /// <summary>
+        ///  单个测试步骤能够添加的最大附件数
+        /// </summary>
+        [XmlElement(ElementName = "mafs")]
+        public int MaxAccsForStep = 10;
+
+        /// <summary>
+        /// 用例设计窗体自动设置的最大高度
+        /// </summary>
+        [XmlElement(ElementName = "AutoCaseRowSize")]
+        public int AutoCaseRowSize = 5;
+
+        /// <summary>
+        /// 测试项窗体上面测试项信息窗体的显示高度
+        /// 只有子测试项窗体时的高度
+        /// </summary>
+        [XmlElement(ElementName = "ItemInfoHeight")]
+        public int ItemInfoHeight = -1;
+
+        /// <summary>
+        /// 子测试项窗体和用例窗体显示时的高度
+        /// </summary>
+        [XmlElement(ElementName = "ItemUCSplit")]
+        public float ItemUCSplit = float.NaN;
+
+        /// <summary>
+        /// 用例信息部分的高度
+        /// </summary>
+        [XmlElement(ElementName = "UsecaseInfoHeight")]
+        public int UsecaseInfoHeight = -1;
+
+        [XmlElement(ElementName = "sifh")]
+        public float SubItemsFrmHeight = float.NaN;
+
+        /// <summary>
+        /// 在构造函数中初始化
+        /// 类型 RowSizingEnum
+        /// </summary>
+        [XmlElement(ElementName = "rsl")]
+        public int[] rowSizeingList;
+
+        [XmlElement(ElementName = "sit")]
+        public int summaryItemType = 1;
+    }
+
+    public enum SummaryItemType
+    {
+        /// <summary>
+        /// 统计所有测试项
+        /// </summary>
+        [EnumDescription("统计所有测试项")]
+        All = 1,
+
+        /// <summary>
+        /// 仅统计叶节点的测试项。如果有子测试项，则不参加统计
+        /// </summary>
+        [EnumDescription("仅最底级的测试项")]
+        NoLeaf = 2,
+    }
+}

@@ -1,0 +1,528 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.IO;
+using System.Windows.Forms;
+using Common;
+using Common.Database;
+
+namespace TPM3.wx
+{
+    using ConvertEvent = Func2<bool, DBAccess>;
+
+    /// <summary>
+    /// 数据库升级程序， 3.0、3.1 => 3.3
+    /// </summary>
+    public class UpgradeDatabase
+    {
+        /// <summary>
+        /// 在[数据库版本]字段中，
+        /// 初始版本为2.4，等同于3.0。!!!
+        ///            3.1   --- 2009-05-07
+        /// 当前版本为 3.3   --- 2009-07-13
+        /// 当前版本为 3.4   --- 2011-10-21
+        /// 当前版本为 3.5   --- 2013-04-07
+        /// 当前版本为 3.6   --- 2013-07-01
+        /// </summary>
+        public const string DBVersion = "3.6";
+
+        /// <summary>
+        /// 必须和 DBVersion 同步 !!!
+        /// </summary>
+        public static string ToolVersion = DBVersion + ".1";
+
+        /// <summary>
+        /// 检查数据库版本号和本程序是否一致
+        /// </summary>
+        public static bool CheckDataBase(DBAccess dba)
+        {
+            // 打开上一次的数据库时不用报错
+            DBAccess.DBAErrorReportHandler er = dba.localErrorHandler;
+            dba.localErrorHandler = DBAccessStaticFunctionClass.NullMessage;
+            string dbv = ProjectInfoBase<ProjectInfo>.GetProjectString(dba, null, "数据库版本");
+            dba.localErrorHandler = er;
+
+            if(dbv == "2.4") dbv = "3.0";
+
+            //0:成功或无需升级。 1.用户取消升级。 2.无法识别的版本 3.升级失败</returns>
+            int ret = StartUpgrade(dba, dbv);
+            if(ret == 0) return true;
+            if(ret == 1) return false;
+            if(ret == 2)
+            {
+                string msg = "打开项目数据库失败，数据库版本({0})与软件版本({1})不一致！！！";
+                if(String.IsNullOrEmpty(dbv))
+                    msg = "打开项目数据库失败，正在打开的数据库不是有效的测试过程管理工具专用数据库！！！";
+                MessageBox.Show(String.Format(msg, dbv, DBVersion), "错误");
+                return false;
+            }
+            if(ret == 3)
+            {
+                MessageBox.Show(@"升级数据库失败，可能的失败原因: 
+
+    1. 该数据库文件为只读文件 
+
+    2. 有其它应用程序正在使用该数据库(是否网上其它用户在访问？)。 
+
+    3. 对该数据库没有写权限
+
+    请对问题做出解决后再重新对数据库进行升级");
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 升级数据库
+        /// </summary>
+        /// <returns>0:成功或无需升级。 1.用户取消升级。 2.无法识别的版本 3.升级失败</returns>
+        public static int StartUpgrade(DBAccess dba, string dbv)
+        {
+            if(dbv == DBVersion) return 0;
+
+            IEnumerable<ConvertEvent> eventList = GetEventList(dbv);
+            if(eventList == null) return 2;
+
+            string msg = @"打开的数据库版本是" + dbv + @", 是否转换成当前数据库版本?
+
+为保证数据安全, 在转换前请自行对要升级的数据库进行备份
+
+为保证转换成功, 在转换前最好关闭所有正在使用该数据库的程序!!!";
+
+            DialogResult ret = MessageBox.Show(msg, "操作提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
+            if(ret != DialogResult.OK) return 1;
+
+            string oldfilename = ((DbConnection)dba.dbConnection).DataSource;
+            string filename = GetUniFileName(oldfilename, dbv, null);
+            int index = 1;
+            while(File.Exists(filename))   // 如果备份文件已经存在，则换一个文件名
+                filename = GetUniFileName(oldfilename, dbv, index++);
+            File.Copy(oldfilename, filename);
+
+            foreach(ConvertEvent ce in eventList)
+            {
+                if(!ce(dba))
+                    return 3;
+            }
+            bool r2 = ProjectInfoBase<ProjectInfo>.SetProjectString(dba, null, "数据库版本", DBVersion);
+            if(!r2) return 3;
+            return 0;
+        }
+
+        public static string GetUniFileName(string filename, string oldver, int? index)
+        {
+            string dir = Path.GetDirectoryName(filename);
+            string file = Path.GetFileNameWithoutExtension(filename);
+            string ext = Path.GetExtension(filename);
+
+            string indexname = index == null ? "" : "_" + index.Value;
+            string ret = Path.Combine(dir, file + "(" + oldver + indexname + ")" + ext);
+            return ret;
+        }
+
+        /// <summary>
+        /// 获取升级委托列表。null表示查找版本失败。
+        /// </summary>
+        static IEnumerable<ConvertEvent> GetEventList(string dbv)
+        {
+            List<ConvertEvent> eventList = new List<ConvertEvent>();
+
+            eventList.Insert(0, From35To36);
+            if(dbv == "3.5") return eventList;
+
+            eventList.Insert(0, From34To35);
+            if(dbv == "3.4") return eventList;
+
+            eventList.Insert(0, From33To34);
+            if(dbv == "3.3") return eventList;
+
+            eventList.Insert(0, From31To33);
+            if(dbv == "3.1") return eventList;
+
+            eventList.Insert(0, From30To31);
+            if(dbv == "3.0") return eventList;
+
+            return null;
+        }
+
+        /// <summary>
+        /// 2013-07-01 增加质量记录的字段
+        /// </summary>
+        static bool From35To36(DBAccess dba)
+        {
+            var ta = DbModify.CreateTable(dba, "ZL风险分析与评估表");
+            ta.AddTextColumn("项目ID", "风险优先级");
+            ta.AddMemoColumn("风险事件", "风险原因", "缓解措施");
+            ta.AddIntColumn("序号");
+
+            ta = DbModify.CreateTable(dba, "ZL基线表");
+            ta.AddTextColumn("项目ID", "基线名称", "基线标识", "预期到达时间");
+            ta.AddIntColumn("序号");
+
+            ta = DbModify.CreateTable(dba, "ZL进度计划表");
+            ta.AddTextColumn("项目ID", "工作内容", "父节点ID", "规模", "规模单位", "完成人", "预计开始时间", "预计结束时间");
+            ta.AddIntColumn("序号", "计划类型", "任务类型");
+            ta.AddDoubleColumn("预计工作量", "预计规模");
+
+            ta = DbModify.CreateTable(dba, "ZL配置管理项表");
+            ta.AddTextColumn("项目ID", "CMI名称", "CMI标识", "入库时间", "所属基线");
+            ta.AddIntColumn("序号");
+
+            ta = DbModify.CreateTable(dba, "ZL资源信息表");
+            ta.AddTextColumn("项目ID", "资源名称", "资源标识", "数量", "类别");
+            ta.AddIntColumn("序号");
+            ta.AddMemoColumn("用途");
+
+            ta = DbModify.CreateTable(dba, "ZL组织人员表");
+            ta.AddTextColumn("项目ID", "组织名称", "人员姓名", "职称");
+            ta.AddIntColumn("序号");
+            ta.AddMemoColumn("人员职责");
+
+            ta = new TableAlter(dba, "CA测试项实体表");
+            ta.AddMemoColumn("评判标准", "约束条件");
+
+            return true;
+        }
+
+        /// <summary>
+        /// 2013-04-07 修改回归部分
+        /// </summary>
+        static bool From34To35(DBAccess dba)
+        {
+            var ta = new TableAlter(dba, "HG软件更动表");
+            ta.AddTextColumn("更动标识", "更动类型", "问题单ID", "问题单标识", "问题单名称");
+            ta.AddMemoColumn("测试要求", "未更动说明");
+            ta.AddBoolColumn("是否更动");
+            return true;
+        }
+
+        static bool From33To34(DBAccess dba)
+        {
+            string sql = @"ALTER TABLE CA测试项实体表 ADD 充分性要求 MEMO";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+            return true;
+        }
+
+        static bool From31To33(DBAccess dba)
+        {
+            string sql;
+            sql = @"CREATE TABLE SYS用户权限表
+                (  ID  TEXT(255) PRIMARY KEY,
+                   所有者ID    TEXT(255),
+                   访问者ID    TEXT(255),
+                   权限类型    INTEGER  ) ";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"CREATE TABLE 文档封面信息表
+                (  ID  TEXT(255) PRIMARY KEY,
+                   项目ID    TEXT(255),
+                   测试版本  TEXT(255),
+                   文档名称  TEXT(255), 
+                   编写人    TEXT(255),
+                   编写日期  TEXT(255), 
+                   参加人    TEXT(255),
+                   校对人    TEXT(255), 
+                   校对日期  TEXT(255),
+                   标审人    TEXT(255), 
+                   标审日期  TEXT(255),
+                   审核人    TEXT(255), 
+                   审核日期  TEXT(255),
+                   批准人    TEXT(255), 
+                   批准日期  TEXT(255) ) ";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"ALTER TABLE CA被测对象实体表 ADD 创建版本ID TEXT(255)";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"ALTER TABLE CA测试过程实体表 ADD 创建版本ID TEXT(255)";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"ALTER TABLE CA测试类型实体表 ADD 创建版本ID TEXT(255)";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"ALTER TABLE CA测试项实体表 ADD 创建版本ID TEXT(255), 创建者ID TEXT(255)";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"ALTER TABLE CA测试用例实测表 ADD 标记 TEXT(255), 生成方式 TEXT(255)";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"ALTER TABLE CA测试用例实体表 ADD 创建版本ID TEXT(255), 创建者ID TEXT(255) ";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"ALTER TABLE CA问题报告单 ADD 附加依据 MEMO, 名称 TEXT(255), 问题名称 MEMO ";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"DROP INDEX 项目ID ON [DC测试类型模板表]";  // 删除索引后才能删除列
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"ALTER TABLE DC测试类型模板表 DROP 项目ID ";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            if(!ConvertFallTable(dba)) return false;
+
+            var temp = dba.localErrorHandler;      // 如果是从 3.0升级，则没有这个索引。因此此处不报异常
+            dba.localErrorHandler = DBAccessStaticFunctionClass.NullMessage;
+            sql = @"DROP INDEX 用例实体ID ON [HG回归测试未测试原因]";  // 删除索引后才能删除列
+            dba.ExecuteNoQuery(sql);
+            dba.localErrorHandler = temp;
+
+            sql = @"ALTER TABLE HG回归测试未测试原因 DROP 用例实体ID ";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"ALTER TABLE HG回归测试未测试原因 ADD 实体类型 INTEGER, 实体ID TEXT(255), 所属被测对象实测ID TEXT(255) ";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"ALTER TABLE HG软件更动表 ADD 本版本相关依据 MEMO ";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// DC问题级别表 不依赖于版本，对每个项目，仅保留遇到的第一个版本的信息
+        /// </summary>
+        static bool ConvertFallTable(DBAccess dba)
+        {
+            string sql = "select * from DC问题级别表";
+            DataTable dtFall = dba.ExecuteDataTable(sql);
+
+            // [pid,vid]
+            Dictionary<object, object> IDMap = new Dictionary<object, object>();
+            foreach(DataRow drFall in dtFall.Rows)
+            {
+                object pid = drFall["项目ID"], vid = drFall["测试版本"];
+                if(!IDMap.ContainsKey(pid))
+                    IDMap[pid] = vid;
+            }
+            for(int i = dtFall.Rows.Count - 1; i >= 0; i--)
+            {
+                DataRow drFall = dtFall.Rows[i];
+                object pid = drFall["项目ID"], vid = drFall["测试版本"];
+                if(!Equals(vid, IDMap[pid]))
+                    drFall.Delete();
+            }
+            dba.UpdateDatabase(dtFall, sql);
+
+            sql = @"ALTER TABLE DC问题级别表 DROP 测试版本 ";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+            return true;
+        }
+
+        /// <summary>
+        /// 从3.00 版升级到 3.10版
+        /// </summary>
+        static bool From30To31(DBAccess dba)
+        {
+            string sql;
+            sql = @"CREATE TABLE SYS项目用户表
+                (  ID  TEXT(255) PRIMARY KEY,
+                   项目ID    TEXT(255),
+                   用户ID    TEXT(255),
+                   用户角色  INTEGER  ) ";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"CREATE TABLE  HG软件更动表
+                (  ID  TEXT(255) PRIMARY KEY,
+                   项目ID    TEXT(255),
+                   序号  INTEGER,
+                   更动名称    TEXT(255),
+                   更动说明    MEMO,
+                   相关测试依据    MEMO,
+                   影响域分析  OLEObject,
+                   测试版本  TEXT(255)  ) ";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"ALTER TABLE CA问题报告单 ADD 影响域分析 OLEObject, 处理措施 INTEGER";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"ALTER TABLE CA问题报告单 Drop COLUMN 更动说明, 是否更动";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"ALTER TABLE SYS用户表 ADD 备注 MEMO, 序号 INTEGER";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"DROP INDEX 项目ID ON [SYS用户表]";  // 删除索引后才能删除列
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"ALTER TABLE SYS用户表 Drop COLUMN 权限ID, 项目ID";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"Drop Table HG回归测试未测试原因";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+
+            sql = @"CREATE TABLE HG回归测试未测试原因
+                (  ID  TEXT(255) PRIMARY KEY,
+                   项目ID    TEXT(255),
+                   用例实体ID    TEXT(255),
+                   序号  INTEGER,
+                   未测试原因    MEMO,
+                   涉及依据    MEMO,
+                   测试版本  TEXT(255)  ) ";
+            if(dba.ExecuteNoQuery(sql) < 0) return false;
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// 数据库结构修改类
+    /// 目前仅支持Sql-Server 和 Access
+    /// </summary>
+    public static class DbModify
+    {
+        static bool IsAccess(DBAccess dba)
+        {
+            if(dba.databaseType == DatabaseType.Access) return true;
+            if(dba.databaseType == DatabaseType.SQLServer) return false;
+            throw new Exception("无效的数据库类型。目前仅支持Access与SqlServer");
+        }
+
+        static void ExecuteNoQuery(DBAccess dba, string sql, params object[] paramList)
+        {
+            int ret = dba.ExecuteNoQuery(sql, paramList);
+            //if(ret < 0) throw new Exception("升级错误");
+        }
+
+        public static void AddTextColumn(DBAccess dba, string table, params string[] cols)
+        {
+            string coltype = IsAccess(dba) ? "TEXT" : "nvarchar";
+            foreach(string col in cols)
+            {
+                string sql = string.Format("ALTER TABLE [{0}] ADD [{1}] {2}(255)  NULL", table, col, coltype);
+                ExecuteNoQuery(dba, sql);
+            }
+        }
+
+        public static void AddIntColumn(DBAccess dba, string table, params string[] cols)
+        {
+            foreach(string col in cols)
+            {
+                string sql = string.Format("ALTER TABLE [{0}] ADD [{1}] Integer  NULL", table, col);
+                ExecuteNoQuery(dba, sql);
+            }
+        }
+
+        public static void AddDoubleColumn(DBAccess dba, string table, params string[] cols)
+        {
+            string name = IsAccess(dba) ? "double" : "float(53)";
+            foreach(string col in cols)
+            {
+                string sql = string.Format("ALTER TABLE [{0}] ADD [{1}] {2}  NULL", table, col, name);
+                ExecuteNoQuery(dba, sql);
+            }
+        }
+
+        public static void AddMemoColumn(DBAccess dba, string table, params string[] cols)
+        {
+            string name = IsAccess(dba) ? "Memo" : "TEXT";
+            foreach(string col in cols)
+            {
+                string sql = string.Format("ALTER TABLE [{0}] ADD [{1}] {2}  NULL", table, col, name);
+                ExecuteNoQuery(dba, sql);
+            }
+        }
+
+        public static void AddOleColumn(DBAccess dba, string table, params string[] cols)
+        {
+            string name = IsAccess(dba) ? "OLEObject" : "IMAGE";
+            foreach(string col in cols)
+            {
+                string sql = string.Format("ALTER TABLE [{0}] ADD [{1}] {2}  NULL", table, col, name);
+                ExecuteNoQuery(dba, sql);
+            }
+        }
+
+        public static void AddBoolColumn(DBAccess dba, string table, string col, bool defaultValue = false)
+        {
+            string sql = string.Format("ALTER TABLE [{0}] ADD [{1}] Bit NULL", table, col);
+            ExecuteNoQuery(dba, sql);
+            sql = string.Format("UPDATE [{0}] SET [{1}] = ?", table, col);
+            ExecuteNoQuery(dba, sql, defaultValue);
+        }
+
+        public static void AddDateColumn(DBAccess dba, string table, params string[] cols)
+        {
+            foreach(string col in cols)
+            {
+                string sql = string.Format("ALTER TABLE [{0}] ADD [{1}] datetime NULL", table, col);
+                ExecuteNoQuery(dba, sql);
+            }
+        }
+
+        /// <summary>
+        /// 创建数据表，包括主键
+        /// </summary>
+        /// <param name="dba"></param>
+        /// <param name="tablename">表名</param>
+        /// <param name="idcol">主键名，字符串类型，缺省列名为：ID</param>
+        /// <param name="txtcols">附加创建的文本列名。也可以用 AddTextColumn 单独创建</param>
+        public static TableAlter CreateTable(DBAccess dba, string tablename, string idcol = "ID", params string[] txtcols)
+        {
+            string coltype = IsAccess(dba) ? "TEXT" : "nvarchar";
+            string sql = string.Format(@" CREATE TABLE [{0}] ( [{1}] {2}(255) PRIMARY KEY  )", tablename, idcol, coltype);
+            ExecuteNoQuery(dba, sql);
+
+            TableAlter ta = new TableAlter(dba, tablename);
+            ta.AddTextColumn(txtcols);
+            return ta;
+        }
+
+        /// <summary>
+        /// 创建视图。要分别指定access和mssql下的SQL语句
+        /// </summary>
+        public static void CreateView(DBAccess dba, string viewName, string accessSql, string MsSqlSql)
+        {
+            string sqlView = IsAccess(dba) ? accessSql : MsSqlSql;
+            if(sqlView == null) return;  // 不需要升级
+            string sql2 = string.Format(@"CREATE VIEW [{0}] AS {1}", viewName, sqlView);
+            ExecuteNoQuery(dba, sql2);
+        }
+    }
+
+    public class TableAlter
+    {
+        readonly DBAccess dba;
+        readonly string tablename;
+
+        public TableAlter(DBAccess _dba, string _tablename)
+        {
+            dba = _dba;
+            tablename = _tablename;
+        }
+
+        public void AddTextColumn(params string[] cols)
+        {
+            DbModify.AddTextColumn(dba, tablename, cols);
+        }
+
+        public void AddIntColumn(params string[] cols)
+        {
+            DbModify.AddIntColumn(dba, tablename, cols);
+        }
+
+        public void AddDoubleColumn(params string[] cols)
+        {
+            DbModify.AddDoubleColumn(dba, tablename, cols);
+        }
+
+        public void AddMemoColumn(params string[] cols)
+        {
+            DbModify.AddMemoColumn(dba, tablename, cols);
+        }
+
+        public void AddOleColumn(params string[] cols)
+        {
+            DbModify.AddOleColumn(dba, tablename, cols);
+        }
+
+        public void AddBoolColumn(string col, bool defaultValue = false)
+        {
+            DbModify.AddBoolColumn(dba, tablename, col, defaultValue);
+        }
+
+        public void AddDateColumn(params string[] cols)
+        {
+            DbModify.AddDateColumn(dba, tablename, cols);
+        }
+    }
+}

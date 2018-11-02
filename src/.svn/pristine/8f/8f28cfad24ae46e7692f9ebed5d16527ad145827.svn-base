@@ -1,0 +1,941 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Reflection;
+using System.Windows.Forms;
+using System.Xml;
+using Aspose.Words;
+using Common;
+using TPM3.Sys;
+using C1.Win.C1FlexGrid;
+using System.Collections;
+using System.Diagnostics;
+
+namespace TPM3.chq
+{
+    /// <summary>
+    /// 批量输出文档
+    /// </summary>
+    [TypeNameMap("chq.BatchOutput")]
+    public partial class BatchOutput : MyBaseForm
+    {
+        ArrayList DataTreeList = null;
+        public string DocPath;
+
+        public string ProjectID = "";
+        public string TestVerID = "";
+
+        public static string CurrentDocName = "";
+        public bool IfOutputAnnex = false;
+
+        public void GetDataTreeList(string TestVerID)
+        {
+            NodeTree nodetree = new NodeTree();
+            nodetree.TestVerID = TestVerID;
+
+            DataTreeList = nodetree.PutNodeToLayerList();
+        }
+
+        public string GetProjectName()
+        {
+            string projectname = "";
+
+            DataTable dt = TPM3.Sys.MyBaseForm.dbProject.ExecuteDataTable("SELECT SYS文档内容表.文本内容 FROM SYS文档内容表 WHERE SYS文档内容表.内容标题='项目名称' AND SYS文档内容表.文档名称='项目信息' and SYS文档内容表.项目ID=" + "'" + ProjectID + "'");
+            if (dt != null && dt.Rows.Count != 0)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    projectname = dr[0].ToString();
+
+                }
+            }
+
+            return projectname;
+
+        }
+        public string ThrowlawlessChar(string projectname)
+        {
+            string newstr = projectname;
+            string[] strlist = new string[] { @"\", "/", ":", "：", "*", "?", "<", ">", "|" };
+            foreach (string str in strlist)
+            {
+                int pos1 = projectname.IndexOf(str);
+                if (pos1 != -1)
+                {
+                    newstr = projectname.Replace(str, "-");
+                }
+            }
+
+            return newstr;
+
+        }
+
+        public BatchOutput()
+        {
+            InitializeComponent();
+
+            FlexGridAssist.SetFlexGridWithFocus(flex1);
+            flex1.SelectionMode = SelectionModeEnum.Row;
+
+
+        }
+
+        bool initOK = false;
+        void BatchOutput_Load(object sender, EventArgs e)
+        {
+            flex1.Rows.Count = flex1.Rows.Fixed;
+            int checkCol = flex1.Cols["文档名称"].Index;
+            flex1.Cols["模板选择"].ComboList = "a|b";
+            foreach (string doc in GetDocumentList())
+            {
+                Row r = flex1.Rows.Add();
+                r["文档名称"] = doc;
+                flex1.SetCellCheck(r.Index, checkCol, CheckEnum.Unchecked);
+
+                foreach (string modal in GetTemplate(doc))
+                {
+                    r["模板选择"] = modal;
+                    break;
+                }
+            }
+            FlexGridAssist.AutoSizeRows(flex1);
+            initOK = true;
+            SetModalFullName();
+            GetDocName();
+
+        }
+
+        public bool IfFirstTest()
+        {
+            var ProjectID = GlobalData.globalData.projectID.ToString();
+            var TestVerID = GlobalData.globalData.currentvid.ToString();
+            DataTable dt = dbProject.ExecuteDataTable("SELECT SYS测试版本表.ID, SYS测试版本表.序号, SYS测试版本表.项目ID FROM SYS测试版本表 WHERE (SYS测试版本表.前向版本ID) Is Null AND SYS测试版本表.项目ID=?", ProjectID);
+            string ID = "";
+            if (dt != null && dt.Rows.Count != 0)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    ID = dr[0].ToString();
+                }
+            }
+            return TestVerID == ID;
+        }
+
+        public string GetTestProjectType()
+        {
+            var ProjectID = GlobalData.globalData.projectID.ToString();
+            var TestVerID = GlobalData.globalData.currentvid.ToString();
+
+            string ProjectType="";
+
+            DataTable dt = TPM3.Sys.MyBaseForm.dbProject.ExecuteDataTable("SELECT SYS文档内容表.文本内容 FROM SYS文档内容表 WHERE SYS文档内容表.内容标题='项目类别' and SYS文档内容表.项目ID=" + "'" + ProjectID + "'");
+            if (dt != null && dt.Rows.Count != 0)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    ProjectType = dr[0].ToString();
+
+                }
+            }
+
+            return ProjectType;
+
+        }
+
+        IEnumerable<string> GetDocumentList()
+        {
+            XmlElement ele = docTN.nodeElement;
+            string title = ele.GetAttribute("step");
+
+            if (title == "需求分析")
+            {
+                yield return "软件测试需求规格说明";
+            }
+            if (title == "测试计划")
+            {
+                if (IfFirstTest() && (GetTestProjectType() == "1"))
+                {
+                    yield return "软件测试需求规格说明";
+                    yield return "软件测试计划";                 
+                }
+                else if (IfFirstTest() && (GetTestProjectType() == "2"))
+                {
+                    yield return "简化模式软件测试计划";
+                }
+                else if (IfFirstTest() && (GetTestProjectType() == "4"))
+                {
+                    yield return "定型测评大纲";
+                }
+                else if (!IfFirstTest())
+                {
+                    yield return "软件回归测试方案";
+                }
+                else
+                {
+                    yield return "软件测试需求规格说明";
+                    yield return "软件测试计划";  
+                }
+
+            }
+            if (title == "测试设计")
+            {
+                if (IfFirstTest() && (GetTestProjectType() == "1"))
+                {
+                     yield return "软件测试需求规格说明";
+                     yield return "软件测试计划";
+                     yield return "软件测试说明";
+                     yield return "软件测试记录表单";
+                     yield return "将附件导入到附件文件夹";
+
+                }
+                else if (IfFirstTest() && (GetTestProjectType() == "2"))
+                {
+                    yield return "简化模式软件测试计划";
+                    yield return "软件测试说明";
+                    yield return "软件测试记录表单";
+                    yield return "将附件导入到附件文件夹";
+
+                }
+                else if (IfFirstTest() && (GetTestProjectType() == "4"))
+                {
+                    yield return "定型测评大纲";
+                    yield return "软件测试说明";
+                    yield return "软件测试记录表单";
+                    yield return "将附件导入到附件文件夹";
+
+                }
+                else if (IfFirstTest() && (GetTestProjectType() == "3"))
+                {
+                    yield return "软件测试方案";
+                    yield return "软件测试记录表单";
+                    yield return "将附件导入到附件文件夹";
+
+                }
+                else
+                {
+                    yield return "软件测试需求规格说明";
+                    yield return "软件测试计划";
+                    yield return "软件测试说明";
+                    yield return "软件测试记录表单";
+                    yield return "将附件导入到附件文件夹";
+
+                }
+               
+            }
+            if (title == "测试实施")
+            {
+                if (IfFirstTest() && (GetTestProjectType() == "1"))
+                {
+                    yield return "软件测试需求规格说明";
+                    yield return "软件测试计划";
+                    yield return "软件测试说明";
+                    yield return "软件测试记录实测结果";
+                    yield return "软件问题报告";
+                    yield return "将附件导入到附件文件夹";
+                }
+                else if (IfFirstTest() && (GetTestProjectType() == "2"))
+                {
+                    yield return "简化模式软件测试计划";
+                    yield return "软件测试说明";
+                    yield return "软件测试记录实测结果";
+                    yield return "软件问题报告";
+                    yield return "将附件导入到附件文件夹";
+
+                }
+                else if (IfFirstTest() && (GetTestProjectType() == "3"))
+                {
+                    yield return "软件测试方案";
+                    yield return "软件测试记录实测结果";
+                    yield return "软件问题报告";
+                    yield return "将附件导入到附件文件夹";
+
+                }
+                else if (IfFirstTest() && (GetTestProjectType() == "4"))
+                {
+                    yield return "定型测评大纲";
+                    yield return "软件测试说明";
+                    yield return "软件测试记录实测结果";
+                    yield return "软件问题报告";
+                    yield return "将附件导入到附件文件夹";
+
+                }
+                else if (!IfFirstTest())
+                {
+                    yield return "软件测试记录实测结果";
+                    yield return "软件回归测试问题报告";
+                    yield return "将附件导入到附件文件夹";
+                }
+                else
+                {
+                    yield return "软件测试需求规格说明";
+                    yield return "软件测试计划";
+                    yield return "软件测试说明";
+                    yield return "软件测试记录实测结果";
+                    yield return "软件问题报告";
+                    yield return "将附件导入到附件文件夹";
+
+
+                }
+            }
+            if (title == "测试总结")
+            {
+                if (IfFirstTest() && (GetTestProjectType() == "1"))
+                {
+                    yield return "软件测试需求规格说明";
+                    yield return "软件测试计划";
+                    yield return "软件测试说明";
+                    yield return "软件测试记录实测结果";
+                    yield return "软件测试报告";
+                    yield return "软件问题报告";
+                }
+                else if (IfFirstTest() && (GetTestProjectType() == "2"))
+                {
+                    yield return "简化模式软件测试计划";
+                    yield return "软件测试说明";
+                    yield return "软件测试记录实测结果";
+                    yield return "软件测试报告";
+                    yield return "软件问题报告";
+                }
+                else if (IfFirstTest() && (GetTestProjectType() == "3"))
+                {
+                    yield return "软件测试方案";
+                    yield return "软件测试记录实测结果";
+                    yield return "软件问题报告";
+                    yield return "软件测试报告";
+
+                }
+                else if (IfFirstTest() && (GetTestProjectType() == "4"))
+                {
+                    yield return "定型测评大纲";
+                    yield return "软件测试说明";
+                    yield return "软件测试记录实测结果";
+                    yield return "软件问题报告";
+                    yield return "定型测评报告";
+
+                }
+                else
+                {
+                    yield return "软件测试需求规格说明";
+                    yield return "软件测试计划";
+                    yield return "软件测试说明";
+                    yield return "软件测试记录实测结果";
+                    yield return "软件测试报告";
+                    yield return "软件问题报告";
+
+
+                }
+                //else if (!IfFirstTest())
+                //{
+                //    if (GetTestProjectType() == "4")
+                //    {
+                //        yield return "定型测评报告";
+                //        yield return "软件回归测试问题报告";
+                //    }
+                //    else
+                //    {
+                //        yield return "软件总测试报告";
+                //        yield return "软件回归测试问题报告";
+                //    }
+                   
+                //}
+            }
+            //if (title == "回归测试报告")
+            //{
+            //    yield return "软件回归测试方案";
+            //    yield return "软件回归测试说明";
+            //    yield return "软件回归测试记录表单";
+            //    yield return "软件回归测试记录实测结果";
+            //    yield return "软件回归测试问题报告";
+            //    yield return "软件总测试报告";
+            //}
+            if (title == "回归测试方案")
+            {
+                yield return "软件回归测试方案";           
+                yield return "软件回归测试记录表单";             
+               
+            }
+            if (title == "回归测试执行")
+            {
+                yield return "软件回归测试记录实测结果";
+                yield return "软件回归测试问题报告";
+
+            }
+            if (title == "回归测试报告")
+            {
+                if (GetTestProjectType() == "4")
+                {
+                    yield return "定型测评报告";
+                    yield return "软件回归测试问题报告";
+                }
+                else
+                {
+                    yield return "软件总测试报告";
+                }
+            }
+
+        }
+
+        public static IEnumerable<string> GetTemplate(string FileName)
+        {
+            string Filter = "";
+
+            string s = Assembly.GetEntryAssembly().Location;
+            s = Path.GetDirectoryName(s);
+            s = Path.Combine(s, @GlobalData.BaseDirectory + "dot");
+
+            switch (FileName)
+            {
+                case "软件测试需求规格说明":
+                    Filter = "测试需求规格说明模板*.doc";
+                    break;
+
+                case "软件测试计划":
+                    Filter = "测试计划模板*.doc";
+                    break;
+
+                case "简化模式软件测试计划":
+                    Filter = "测试计划简化模式模板*.doc";
+                    break;
+
+                case "定型测评大纲":
+                    Filter = "定型测评大纲模板*.doc";
+                    break;
+
+                case "定型测评报告":
+                    Filter = "定型测评报告模板*.doc";
+                    break;
+
+                case "软件测试说明":
+                    Filter = "测试说明模板*.doc";
+                    break;
+
+                case "软件测试方案":
+                    Filter = "测试方案模板*.doc";
+                    break;
+
+                case "软件测试报告":
+                    Filter = "测试报告模板*.doc";
+                    break;
+
+                case "软件回归测试方案":
+                    Filter = "回归测试方案模板*.doc";
+                    break;
+
+                //case "软件回归测试文档":
+                //    Filter = "回归测试文档模板*.doc";
+                //    break;
+
+                case "软件总测试报告":
+                    Filter = "回归测试报告模板*.doc";
+                    break;
+
+                case "软件回归测试说明":
+                    Filter = "回归测试说明模板*.doc";
+                    break;
+
+                case "软件回归测试记录表单":
+                    Filter = "回归测试记录表单模板*.doc";
+                    break;
+
+                case "软件回归测试记录实测结果":
+                    Filter = "回归测试记录结果模板*.doc";
+                    break;
+
+                case "软件回归测试问题报告":
+                    Filter = "回归问题报告模板*.doc";
+                    break;
+
+                case "软件测试记录表单":
+                    Filter = "测试记录表单模板*.doc";
+                    break;
+
+                case "软件测试记录实测结果":
+                    Filter = "测试记录结果模板*.doc";
+                    break;
+
+                case "软件问题报告":
+                    Filter = "问题报告模板*.doc";
+                    break;
+
+                case "将附件导入到附件文件夹":
+                    Filter = "文档附件模板*.doc";
+                    break;
+
+            }
+
+            foreach (string TemplateName in Directory.GetFiles(s, Filter))
+                yield return Path.GetFileName(TemplateName);
+        }
+
+        void flex1_SetupEditor(object sender, RowColEventArgs e)
+        {
+            if (e.Col != flex1.Cols["模板选择"].Index) return;
+            ComboBox cb = (ComboBox)flex1.Editor;
+            cb.Items.Clear();
+
+            Row r = flex1.Rows[e.Row];
+            foreach (string modal in GetTemplate(r["文档名称"].ToString()))
+            {
+                int index = cb.Items.Add(modal);
+                if (modal == r["模板选择"] as string)
+                    cb.SelectedIndex = index;
+            }
+        }
+
+        void SetModalFullName()
+        {
+            string s = Assembly.GetEntryAssembly().Location;
+            s = Path.GetDirectoryName(s);
+            s = Path.Combine(s, @GlobalData.BaseDirectory + "dot");
+
+            int i = flex1.Row;
+            if (i < flex1.Rows.Fixed) return;
+            Row r = flex1.Rows[i];
+            string TemplateName = s + "\\" + r["模板选择"];
+
+            Document doc = new Document(TemplateName);
+            string TemplateInfo = doc.BuiltInDocumentProperties.Comments;
+            textBox1.Text = TemplateInfo;
+        }
+
+        void flex1_SelChange(object sender, EventArgs e)
+        {
+            if (!initOK) return;
+            SetModalFullName();
+            GetDocName();
+
+        }
+
+        void flex1_AfterEdit(object sender, RowColEventArgs e)
+        {
+            SetModalFullName();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string CurrentOutputDoc = "";
+            string OutputFileName = "";
+            string SelectTemplateDoc = "";
+            ArrayList list = new ArrayList();
+
+
+            Process[] Process2 = Process.GetProcessesByName("WINWORD");
+
+            if (Process2.Length != 0)
+            {
+                IfCloseWord ifclose = new IfCloseWord();
+                ifclose.ShowDialog();
+
+                if (ifclose.JXFlag == false)//中止输出
+                {
+                    ifclose.Close();
+                    return;
+                }
+                else//关闭应用，接着输出
+                {
+                    ifclose.Close();
+                    foreach (Process p in Process2)
+                    {
+                        p.Kill();
+                    }
+
+                }
+
+            }
+
+            ProjectID = TPM3.Sys.GlobalData.globalData.projectID.ToString();
+            TestVerID = TPM3.Sys.GlobalData.globalData.currentvid.ToString();
+
+            GetDataTreeList(TestVerID);
+
+            int flag = 0;
+            for (int i = flex1.Rows.Fixed; i < flex1.Rows.Count; i++)
+            {
+                if (flex1.GetCellCheck(i, flex1.Cols["文档名称"].Index) == CheckEnum.Checked)
+                {
+                    flag = 1;
+                }
+            }
+            if (flag == 0)
+            {
+                MessageBox.Show("请选择输出文件！");
+                return;
+            }
+
+            string s1 = Assembly.GetEntryAssembly().Location;
+            s1 = Path.GetDirectoryName(s1);
+            s1 = Path.Combine(s1, @GlobalData.BaseDirectory + "dot");
+
+
+            string s2 = GlobalData.GetProjectDirName();
+
+            for (int i = flex1.Rows.Fixed; i < flex1.Rows.Count; i++)
+            {
+                if (flex1.GetCellCheck(i, flex1.Cols["文档名称"].Index) != CheckEnum.Checked) continue;
+                string DocName = flex1[i, "文档名称"].ToString();
+                string TemplateName = flex1[i, "模板选择"].ToString();
+                SelectTemplateDoc = s1 + "\\" + TemplateName;
+
+                switch (DocName)
+                {
+                    case "软件测试需求规格说明":
+                        CurrentOutputDoc = "需求分析";
+                        OutputFileName = Path.Combine(s2, ThrowlawlessChar(GetProjectName()) + "_软件测试需求规格说明.doc");
+                        break;
+
+                    case "软件测试计划":
+                        CurrentOutputDoc = "测试计划";
+                        OutputFileName = Path.Combine(s2, ThrowlawlessChar(GetProjectName()) + "_软件测试计划.doc");
+                        break;
+
+                    case "简化模式软件测试计划":
+                        CurrentOutputDoc = "测试计划";
+                        OutputFileName = Path.Combine(s2, ThrowlawlessChar(GetProjectName()) + "_软件测试计划.doc");
+                        break;
+
+                    case "定型测评大纲":
+                        CurrentOutputDoc = "测试计划";
+                        OutputFileName = Path.Combine(s2, ThrowlawlessChar(GetProjectName()) + "_定型测评大纲.doc");
+                        break;
+
+                    case "软件测试说明":
+                        if (checkBox1.Checked == true)
+                        {
+                            IfOutputAnnex = true;
+                        }
+                        CurrentOutputDoc = "测试说明";
+                        OutputFileName = Path.Combine(s2, ThrowlawlessChar(GetProjectName()) + "_软件测试说明.doc");
+                        break;
+
+                    case "软件测试方案":
+                        CurrentOutputDoc = "测试说明";
+                        OutputFileName = Path.Combine(s2, ThrowlawlessChar(GetProjectName()) + "_软件测试方案.doc");
+                        break;
+
+                    case "软件测试报告":
+
+                        CurrentOutputDoc = "测试总结";
+                        OutputFileName = Path.Combine(s2, ThrowlawlessChar(GetProjectName()) + "_软件测试报告.doc");
+                        break;
+
+                    case "软件回归测试方案":
+                        CurrentOutputDoc = "回归测试方案";
+                        OutputFileName = Path.Combine(s2, ThrowlawlessChar(GetProjectName()) + "_软件回归测试方案.doc");
+                        break;
+
+                    case "软件总测试报告":
+
+                        CurrentOutputDoc = "回归测试报告";
+                        OutputFileName = Path.Combine(s2, ThrowlawlessChar(GetProjectName()) + "_软件测试报告.doc");
+                        break;
+
+                    case "定型测评报告":
+
+                        CurrentOutputDoc = "回归测试报告";
+                        OutputFileName = Path.Combine(s2, ThrowlawlessChar(GetProjectName()) + "_软件定型测评报告.doc");
+                        break;
+
+                    case "软件回归测试说明":
+
+                        CurrentOutputDoc = "回归测试说明";
+                        OutputFileName = Path.Combine(s2, ThrowlawlessChar(GetProjectName()) + "_软件回归测试说明.doc");
+                        break;
+
+                    case "软件回归测试记录表单":
+
+                        CurrentOutputDoc = "回归测试记录";
+                        OutputFileName = Path.Combine(s2, ThrowlawlessChar(GetProjectName()) + "_软件回归测试记录表单.doc");
+                        break;
+
+                    case "软件回归测试记录实测结果":
+
+                        if (checkBox1.Checked == true)
+                        {
+                            IfOutputAnnex = true;
+                        }
+                        CurrentOutputDoc = "回归测试记录";
+                        OutputFileName = Path.Combine(s2, ThrowlawlessChar(GetProjectName()) + "_软件回归测试记录.doc");
+                        break;
+
+                    case "软件回归测试问题报告":
+
+                        CurrentOutputDoc = "回归问题报告";
+                        OutputFileName = Path.Combine(s2, ThrowlawlessChar(GetProjectName()) + "_软件回归问题报告.doc");
+                        break;
+
+                    case "软件测试记录表单":
+
+                        CurrentOutputDoc = "测试记录";
+                        OutputFileName = Path.Combine(s2, ThrowlawlessChar(GetProjectName()) + "_软件测试记录表单.doc");
+                        break;
+
+                    case "软件测试记录实测结果":
+
+                        CurrentOutputDoc = "测试记录";
+                        OutputFileName = Path.Combine(s2, ThrowlawlessChar(GetProjectName()) + "_软件测试记录.doc");
+                        break;
+
+                    case "软件问题报告":
+
+                        CurrentOutputDoc = "问题报告";
+                        OutputFileName = Path.Combine(s2, ThrowlawlessChar(GetProjectName()) + "_软件问题报告.doc");
+                        break;
+
+                    case "将附件导入到附件文件夹":
+                        Annexs Annexs = new Annexs();
+
+                        XmlElement ele = docTN.nodeElement;
+
+                        string title1 = ele.GetAttribute("step");
+
+                        if (title1 == "测试设计")
+                        {
+                            System.Windows.Forms.Application.DoEvents();
+                            Annexs.PutAnnexIntoNewFile(SelectTemplateDoc, 1);
+                        }
+                        else if (title1 == "测试实施")
+                        {
+                            System.Windows.Forms.Application.DoEvents();
+                            Annexs.PutAnnexIntoNewFile(SelectTemplateDoc, 2);
+
+                        }
+                        MessageBox.Show("附件已输出到相应文件夹下!");
+                        return;
+
+                }
+
+                
+
+                list.Add(OutputFileName);
+
+                System.Windows.Forms.Application.DoEvents();
+
+                OutputProcess(CurrentOutputDoc, SelectTemplateDoc, OutputFileName, DocName, IfOutputAnnex);
+            }
+
+            WordProcess WorP = new WordProcess();
+            WorP.WordUpdateProcess(list);
+
+            MessageBox.Show("文档输出完毕!");
+        }
+
+        public void OutputProcess(string CurrentOutputDoc, string SelectTemplateDoc, string DocPath, string DocName, bool IfOutputAnnex)
+        {
+
+            if ((DocName == "软件测试记录表单") || (DocName == "软件测试记录实测结果"))
+            {
+                TPM3.chq.TL tl1 = new TPM3.chq.TL();
+                tl1.ExecuteOutput_TL(SelectTemplateDoc, "测试记录", DataTreeList, DocPath, DocName, ProjectID, TestVerID, IfOutputAnnex);
+            }
+
+            else if ((DocName == "软件回归测试记录表单") || (DocName == "软件回归测试记录实测结果"))
+            {
+                TPM3.chq.TL tl2 = new TPM3.chq.TL();
+                tl2.ExecuteOutput_TL(SelectTemplateDoc, "回归测试记录", DataTreeList, DocPath, DocName, ProjectID, TestVerID, IfOutputAnnex);
+
+            }
+            else
+            {
+                switch (DocName)
+                {
+                    case "软件测试需求规格说明":
+                        TPM3.chq.TA ta1 = new TPM3.chq.TA();
+                        ta1.ExecuteOutput_TA(SelectTemplateDoc, "需求分析", DataTreeList, DocPath, ProjectID, TestVerID, IfOutputAnnex);
+                        break;
+
+                    case "软件测试计划":
+                        TPM3.chq.TP tp1 = new TPM3.chq.TP();
+                        tp1.ExecuteOutput_TP(SelectTemplateDoc, "测试计划", DataTreeList, DocPath, ProjectID, TestVerID, IfOutputAnnex);
+                        break;
+
+                    case "简化模式软件测试计划":
+                        TPM3.chq.JHTP jhtp = new TPM3.chq.JHTP();
+                        jhtp.ExecuteOutput_JHTP(SelectTemplateDoc, "测试计划", DataTreeList, DocPath, ProjectID, TestVerID, IfOutputAnnex);
+                        break;
+
+                    case "定型测评大纲":
+                        TPM3.chq.DXDG dxdg = new TPM3.chq.DXDG();
+                        dxdg.ExecuteOutput_DXDG(SelectTemplateDoc, "测试计划", DataTreeList, DocPath, ProjectID, TestVerID, IfOutputAnnex);
+                        break;
+
+                    case "软件测试说明":
+                        TPM3.chq.TS ts1 = new TPM3.chq.TS();
+                        ts1.ExecuteOutput_TS(SelectTemplateDoc, "测试说明", DataTreeList, DocPath, ProjectID, TestVerID, IfOutputAnnex);
+                        break;
+
+                    case "软件测试方案":
+                        TPM3.chq.ZXTF zxtf1 = new TPM3.chq.ZXTF();
+                        zxtf1.ExecuteOutput_ZXTF(SelectTemplateDoc, "测试说明", DataTreeList, DocPath, ProjectID, TestVerID, IfOutputAnnex);
+                        break;
+
+                    case "软件测试报告":
+
+                        TPM3.chq.TR tr1 = new TPM3.chq.TR();
+                        tr1.ExecuteOutput_TR(SelectTemplateDoc, "测试总结", DataTreeList, DocPath, null, ProjectID, TestVerID);
+
+                        break;
+
+                    case "软件问题报告":
+                        TPM3.chq.PR pr2 = new TPM3.chq.PR();
+                        pr2.ExecuteOutput_PR(SelectTemplateDoc, "问题报告", DataTreeList, DocPath, ProjectID, TestVerID);
+                        break;
+
+
+                    case "软件回归测试方案":
+                        TPM3.chq.HGFA HGFA = new TPM3.chq.HGFA();
+                        HGFA.ExecuteOutput_HGFA(SelectTemplateDoc, "回归测试方案", DataTreeList, DocPath, ProjectID, TestVerID, IfOutputAnnex);
+                        break;
+
+                    case "软件总测试报告":
+                         TPM3.chq.HG hg1 = new TPM3.chq.HG();
+                        
+                         SelectVerForm fm = new SelectVerForm();
+                         fm.ShowDialog();
+
+                         hg1.ExecuteOutput_HG(SelectTemplateDoc, "回归测试报告", DataTreeList, DocPath, ProjectID, TestVerID, fm.SelectItemList);
+
+                        break;
+
+                    case "定型测评报告":
+                        TPM3.chq.DXBG dxbg1 = new TPM3.chq.DXBG();
+
+                        SelectVerForm fm1 = new SelectVerForm();
+                        fm1.ShowDialog();
+
+                        dxbg1.ExecuteOutput_DXBG(SelectTemplateDoc, "回归测试报告", DataTreeList, DocPath, ProjectID, TestVerID, fm1.SelectItemList);
+
+                        break;
+
+                    case "软件回归测试说明":
+                        TPM3.chq.TS ts2 = new TPM3.chq.TS();
+                        ts2.ExecuteOutput_TS(SelectTemplateDoc, "回归测试说明", DataTreeList, DocPath, ProjectID, TestVerID, IfOutputAnnex);
+                        break;
+
+                    case "软件回归测试问题报告":
+                        TPM3.chq.HGFL_Question pr1 = new TPM3.chq.HGFL_Question();
+                        pr1.ExecuteOutput_HGFL_Question(SelectTemplateDoc, "回归问题报告", DataTreeList, DocPath, ProjectID, TestVerID);
+                        break;                 
+                        
+                }
+            }
+
+        }
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Cover DocCover = new Cover();
+            DocCover.ShowDialog();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            文档修改页 modpage = new 文档修改页();
+            modpage.ShowDialog();
+        }
+
+        void GetDocName()
+        {
+            int i = flex1.Row;
+            if (i < flex1.Rows.Fixed) return;
+            Row r = flex1.Rows[i];
+            string DocName = r["文档名称"].ToString();
+
+            switch (DocName)
+            {
+                case "软件测试需求规格说明":
+                    CurrentDocName = "需求分析";
+                    break;
+
+                case "软件测试计划":
+                    CurrentDocName = "测试计划";
+                    break;
+
+                case "简化模式测试计划":
+                    CurrentDocName = "测试计划";
+                    break;
+
+                case "定型测评大纲":
+                    CurrentDocName = "测试计划";
+                    break;
+
+                case "软件测试说明":
+                    CurrentDocName = "测试说明";
+                    break;
+
+                case "软件测试方案":
+                    CurrentDocName = "测试说明";
+                    break;
+
+                case "软件测试报告":
+                    CurrentDocName = "测试总结";
+                    break;
+
+                case "软件回归测试方案":
+                    CurrentDocName = "回归测试方案";
+                    break;
+
+                case "软件总测试报告":
+                    CurrentDocName = "回归测试报告";
+                    break;
+
+                case "定型测评报告":
+                    CurrentDocName = "回归测试报告";
+                    break;
+
+                case "软件回归测试说明":
+                    CurrentDocName = "回归测试说明";
+                    break;
+
+                case "软件回归测试记录表单":
+                    CurrentDocName = "回归测试记录";
+                    break;
+
+                case "软件回归测试记录实测结果":
+                    CurrentDocName = "回归测试记录";
+                    break;
+
+                case "软件回归测试问题报告":
+                    CurrentDocName = "回归问题报告";
+                    break;
+
+                case "软件测试记录表单":
+                    CurrentDocName = "测试记录";
+                    break;
+
+                case "软件测试记录实测结果":
+                    CurrentDocName = "测试记录";
+                    break;
+
+                case "软件问题报告":
+                    CurrentDocName = "问题报告";
+                    break;
+
+
+            }
+        }
+
+       
+
+        void IfHaveWord()
+        {
+           
+
+
+        }
+
+        private void groupBox4_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+
+
+    }
+
+}
+
